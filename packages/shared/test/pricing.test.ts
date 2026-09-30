@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { blendedCostPerMTok, monthlyStatement, roundCents, upstreamCostUsd } from '../src';
+import {
+  blendedCostPerMTok,
+  formatTokens,
+  monthlyStatement,
+  roundCents,
+  upstreamCostUsd,
+} from '../src';
 
 const brief = { inputShare: 0.95 };
 
@@ -77,5 +83,15 @@ describe('monthlyStatement', () => {
       usage: { inputTokens: 90_000_000, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
     });
     expect(s.totalUsd).toBe(0);
+  });
+});
+
+describe('formatTokens', () => {
+  it('uses K, M and B', () => {
+    expect(formatTokens(950)).toBe('950');
+    expect(formatTokens(1_500)).toBe('1.5K');
+    expect(formatTokens(20_000_000)).toBe('20M');
+    expect(formatTokens(1_000_000_000)).toBe('1B');
+    expect(formatTokens(2_500_000_000)).toBe('2.5B');
   });
 });

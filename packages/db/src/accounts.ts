@@ -16,6 +16,7 @@ import {
   memberships,
   notifications,
   orgs,
+  playgroundUsageDaily,
   salesEnquiries,
   sessions,
   subscriptions,
@@ -368,14 +369,12 @@ export function accounts(db: Db) {
         .where(and(eq(apiKeys.hash, hash), isNull(apiKeys.revokedAt)))
         .returning({ id: apiKeys.id, orgId: apiKeys.orgId, userId: apiKeys.userId });
       if (row) {
-        await db
-          .insert(adminEvents)
-          .values({
-            orgId: row.orgId,
-            actorUserId: row.userId,
-            action: 'key.revoked_by_cli',
-            targetId: row.id,
-          });
+        await db.insert(adminEvents).values({
+          orgId: row.orgId,
+          actorUserId: row.userId,
+          action: 'key.revoked_by_cli',
+          targetId: row.id,
+        });
       }
       return !!row;
     },
@@ -531,6 +530,14 @@ export function accounts(db: Db) {
         .from(subscriptions)
         .where(eq(subscriptions.orgId, orgId))
         .orderBy(desc(subscriptions.createdAt));
+    },
+
+    async playgroundUsage(days = 7) {
+      return db
+        .select()
+        .from(playgroundUsageDaily)
+        .where(sql`${playgroundUsageDaily.day} >= current_date - ${days}::int`)
+        .orderBy(desc(playgroundUsageDaily.day));
     },
 
     async grantStaff(email: string, isStaff = true) {
