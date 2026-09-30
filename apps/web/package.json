@@ -6,7 +6,7 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "typecheck": "next typegen && tsc -p tsconfig.json --noEmit",
+    "typecheck": "next typegen && tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit",
     "start:local": "node --env-file=../../.env node_modules/next/dist/bin/next start --port 3400"
   },
   "dependencies": {
