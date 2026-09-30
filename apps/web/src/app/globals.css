@@ -1,0 +1,183 @@
+@import 'tailwindcss';
+
+/*
+ * Sealcode design tokens. Paper and ink, a wax-seal accent for action, and a verified green used
+ * only for proof. Every colour is redefined for dark mode.
+ */
+:root {
+  --paper: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #f0ede5;
+  --ink: #0e1726;
+  --ink-2: #334055;
+  --muted: #5d6677;
+  --line: #e2ddd1;
+  --line-strong: #cfc8b8;
+  --seal: #b93a0b;
+  --seal-strong: #962e07;
+  --seal-soft: #fbe9df;
+  --verified: #157a3c;
+  --verified-soft: #e3f4e8;
+  --warn: #a15c07;
+  --warn-soft: #fdf1dc;
+  --danger: #b42318;
+  --danger-soft: #fdeceb;
+  --code-bg: #0f1623;
+  --code-ink: #e6e3dc;
+  --code-muted: #8a93a3;
+  /* Chart series, validated for CVD against --surface (light #fff, dark #111928). */
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #1baf7a;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #0b111c;
+    --surface: #111928;
+    --surface-2: #172133;
+    --ink: #ebe8e2;
+    --ink-2: #c3c7cf;
+    --muted: #949cab;
+    --line: #232d40;
+    --line-strong: #33405a;
+    --seal: #f0773f;
+    --seal-strong: #ff8d59;
+    --seal-soft: #2a1a12;
+    --verified: #4cc37a;
+    --verified-soft: #10251a;
+    --warn: #f2b35a;
+    --warn-soft: #2a2011;
+    --danger: #f27066;
+    --danger-soft: #2c1414;
+    --code-bg: #070b12;
+    --code-ink: #e6e3dc;
+    --code-muted: #7d8697;
+    --viz-series-1: #3987e5;
+    --viz-series-2: #199e70;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --paper: #0b111c;
+  --surface: #111928;
+  --surface-2: #172133;
+  --ink: #ebe8e2;
+  --ink-2: #c3c7cf;
+  --muted: #949cab;
+  --line: #232d40;
+  --line-strong: #33405a;
+  --seal: #f0773f;
+  --seal-strong: #ff8d59;
+  --seal-soft: #2a1a12;
+  --verified: #4cc37a;
+  --verified-soft: #10251a;
+  --warn: #f2b35a;
+  --warn-soft: #2a2011;
+  --danger: #f27066;
+  --danger-soft: #2c1414;
+  --code-bg: #070b12;
+  --code-ink: #e6e3dc;
+  --code-muted: #7d8697;
+  --viz-series-1: #3987e5;
+  --viz-series-2: #199e70;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-seal: var(--seal);
+  --color-seal-strong: var(--seal-strong);
+  --color-seal-soft: var(--seal-soft);
+  --color-verified: var(--verified);
+  --color-verified-soft: var(--verified-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-code-bg: var(--code-bg);
+  --color-code-ink: var(--code-ink);
+  --color-code-muted: var(--code-muted);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-mono-face), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--seal-soft);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Receipt edge: a torn, perforated bottom. */
+.receipt-edge {
+  --tooth: 10px;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% /
+    var(--tooth) 100%;
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% /
+    var(--tooth) 100%;
+  padding-bottom: calc(var(--tooth) + 0.75rem);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.caret::after {
+  content: '▋';
+  margin-left: 2px;
+  color: var(--seal);
+  animation: caret 1s steps(1) infinite;
+}

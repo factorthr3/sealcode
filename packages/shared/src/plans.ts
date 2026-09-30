@@ -34,7 +34,7 @@ export const PLANS: Record<PaidPlanId, PlanDefinition> = {
     platformFeeMonthly: null,
     minSeats: 3,
     includedTokensPerSeat: 20_000_000,
-    rateLimitRpm: 120,
+    rateLimitRpm: 240,
     features: [
       'Confidential gateway for Claude Code, OpenCode, Cline and Continue',
       '20M tokens per seat per month, pooled across the org',
@@ -54,7 +54,7 @@ export const PLANS: Record<PaidPlanId, PlanDefinition> = {
     platformFeeMonthly: null,
     minSeats: 10,
     includedTokensPerSeat: 40_000_000,
-    rateLimitRpm: 240,
+    rateLimitRpm: 480,
     features: [
       'Everything in Team',
       '40M tokens per seat per month, pooled across the org',
@@ -74,7 +74,7 @@ export const PLANS: Record<PaidPlanId, PlanDefinition> = {
     platformFeeMonthly: 2500,
     minSeats: 50,
     includedTokensPerSeat: null,
-    rateLimitRpm: 600,
+    rateLimitRpm: 1_000,
     features: [
       'Everything in Business',
       'Dedicated CVM and custom domain',
@@ -100,7 +100,8 @@ export const TRIAL = {
   // The owner plus five teammates, so a team can run the full Claude Code flow.
   maxSeats: 6,
   pooledTokens: 20_000_000,
-  rateLimitRpm: 60,
+  // Claude Code fans out to parallel sub-agents, so per-key limits leave headroom for bursts.
+  rateLimitRpm: 120,
 } as const;
 
 /** Overage per 1M tokens once the pooled allowance is used (about 45% over upstream cost). */

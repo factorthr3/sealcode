@@ -1,5 +1,4 @@
 export * from './client';
-export * from './migrate';
 export * from './gateway-store';
 export * from './tenant';
 export * from './accounts';

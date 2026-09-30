@@ -259,7 +259,7 @@ describe('gateway on Postgres', () => {
       plan: 'team',
       budgetMode: 'soft',
       orgBudgetTokens: 200_000_000,
-      rateLimitRpm: 120,
+      rateLimitRpm: 240,
     });
     expect(await accounts(db).subscriptionsFor(org.org.id)).toHaveLength(1);
   });

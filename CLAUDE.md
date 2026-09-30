@@ -58,3 +58,26 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
   and JSON as strings.
 - Tokens (sessions, magic links, invites, device codes) are stored as SHA-256 hashes; API keys as
   HMAC-SHA256 with `KEY_PEPPER`. Plaintext keys exist only in the response that mints them.
+
+## Web (apps/web)
+
+- Next.js 16 (App Router, Turbopack). **Read `apps/web/node_modules/next/dist/docs/` before using
+  an API you haven't checked**: request APIs are async, `middleware` is now `proxy.ts`, and
+  `forbidden()` is experimental (we redirect instead).
+- Local dev reads the root `.env` (see `next.config.ts`). Without `RESEND_API_KEY`, emails are
+  printed to the dev server's stdout and the check-email page links to the magic link.
+- Auth: magic link (consumed on POST, so link scanners can't burn it) → session cookie →
+  TOTP for anyone who is staff or an owner/admin anywhere (`lib/session.ts`). Every server action
+  and route handler re-checks the session and permission (`lib/permissions.ts`).
+- The web app never sees prompt content. The playground token route signs a token; the browser
+  talks to the gateway directly. Receipts are proxied only for the org's own receipt IDs.
+- Budget alert emails: `instrumentation.ts` drains the `notifications` outbox every 30 seconds.
+- Charts use `--viz-series-*` tokens validated for colour-vision deficiency in both themes; keep a
+  legend and a table view with every chart.
+
+## CLI (packages/cli)
+
+- Published to npm as `sealcode`; bundled by esbuild into one dependency-free `dist/cli.js`.
+- Touches only the `env` keys in `CLAUDE_CODE_MANAGED_KEYS`; `logout` restores their original
+  values and keeps anything else the user changed. Commands take an injectable `Io` for tests.
+- Try it locally: `node packages/cli/build.mjs && CLAUDE_CONFIG_DIR=/tmp/cc node packages/cli/dist/cli.js login --site http://localhost:3300`.
