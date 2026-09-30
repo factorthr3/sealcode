@@ -98,6 +98,9 @@ export function createGateway(deps: GatewayDeps): Hono {
   const fetchImpl = deps.fetch ?? fetch;
   const limiter = new RateLimiter();
   const keyCache = new TtlCache<KeyContext | null>(cfg.keyCacheMs);
+  // Concurrent requests for the same key share one lookup, so a burst can't fan out to the database.
+  const keyLookups = new Map<string, Promise<KeyContext | null>>();
+  const usageLookups = new Map<string, Promise<MonthUsage>>();
   const usageCache = new TtlCache<MonthUsage>(cfg.usageCacheMs);
   const playgroundCounts = new Map<string, { count: number; exp: number }>();
   const playgroundDaily = new TtlCache<number>(10_000);
@@ -202,7 +205,12 @@ export function createGateway(deps: GatewayDeps): Hono {
     const hash = hashApiKey(token, cfg.keyPepper);
     let ctx = keyCache.get(hash, at);
     if (ctx === undefined) {
-      ctx = await store.findKey(hash);
+      let pending = keyLookups.get(hash);
+      if (!pending) {
+        pending = store.findKey(hash).finally(() => keyLookups.delete(hash));
+        keyLookups.set(hash, pending);
+      }
+      ctx = await pending;
       keyCache.set(hash, ctx, at);
     }
     if (!ctx) {
@@ -259,7 +267,14 @@ export function createGateway(deps: GatewayDeps): Hono {
     const cacheKey = `${ctx.orgId}:${ctx.userId}:${period}`;
     const cached = usageCache.get(cacheKey, at);
     if (cached) return cached;
-    const fresh = await store.getMonthUsage(ctx.orgId, ctx.userId, period);
+    let pending = usageLookups.get(cacheKey);
+    if (!pending) {
+      pending = store
+        .getMonthUsage(ctx.orgId, ctx.userId, period)
+        .finally(() => usageLookups.delete(cacheKey));
+      usageLookups.set(cacheKey, pending);
+    }
+    const fresh = await pending;
     usageCache.set(cacheKey, fresh, at);
     return fresh;
   }

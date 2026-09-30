@@ -1,0 +1,132 @@
+# Sealcode on one Phala Confidential VM (Intel TDX).
+#
+# This file is measured into the CVM's attestation (the compose hash), and customers compare it
+# with this repository at the release tag. So:
+#   - every image is pinned by digest (the release workflow fills in Sealcode's own digests),
+#   - anything that affects security is written here, not injected through environment variables,
+#   - secrets arrive only as Phala sealed environment variables (${NAME} below), decrypted inside
+#     the TEE. Their names are listed in allowed_envs, which is measured too.
+#
+# Deploy with the Phala CLI; see deploy/README.md.
+
+name: sealcode
+
+x-release: &release v0.0.0-unreleased
+
+services:
+  # TLS terminates here, inside the CVM, with certificate keys generated in the TEE.
+  ingress:
+    image: ghcr.io/dstack-tee/dstack-ingress:2.6@sha256:c212abb7bedec4d7b54a82bcf9972e58e39a4757cc811faeb6017eee6c0673b0
+    restart: unless-stopped
+    ports:
+      - '443:443'
+    environment:
+      DNS_PROVIDER: cloudflare
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
+      GATEWAY_DOMAIN: _.${DSTACK_GATEWAY_DOMAIN}
+      SET_CAA: 'true'
+      DOMAINS: |
+        sealcode.dev
+        api.sealcode.dev
+      ROUTING_MAP: |
+        sealcode.dev=web:3000
+        api.sealcode.dev=gateway:8787
+    volumes:
+      - /var/run/dstack.sock:/var/run/dstack.sock
+      - certs:/etc/letsencrypt
+    depends_on:
+      - web
+      - gateway
+
+  gateway:
+    image: ghcr.io/factorthr3/sealcode-gateway@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      GATEWAY_PORT: '8787'
+      PUBLIC_SITE_URL: https://sealcode.dev
+      PLAYGROUND_ORIGIN: https://sealcode.dev
+      LOG_LEVEL: info
+      DATABASE_URL: postgres://sealcode:${POSTGRES_PASSWORD}@postgres:5432/sealcode
+      PHALA_API_KEY: ${PHALA_API_KEY}
+      KEY_PEPPER: ${KEY_PEPPER}
+      PLAYGROUND_TOKEN_SECRET: ${PLAYGROUND_TOKEN_SECRET}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: ghcr.io/factorthr3/sealcode-web@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PUBLIC_SITE_URL: https://sealcode.dev
+      PUBLIC_GATEWAY_URL: https://api.sealcode.dev
+      SOURCE_REPO_URL: https://github.com/factorthr3/sealcode
+      SOURCE_COMMIT: *release
+      EMAIL_FROM: Sealcode <hello@sealcode.dev>
+      SALES_INBOX: sales@sealcode.dev
+      DATABASE_URL: postgres://sealcode:${POSTGRES_PASSWORD}@postgres:5432/sealcode
+      PHALA_API_KEY: ${PHALA_API_KEY}
+      KEY_PEPPER: ${KEY_PEPPER}
+      PLAYGROUND_TOKEN_SECRET: ${PLAYGROUND_TOKEN_SECRET}
+      TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+    volumes:
+      # Read-only access to the guest agent, for the trust center's live attestation.
+      - /var/run/dstack.sock:/var/run/dstack.sock:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    image: ghcr.io/factorthr3/sealcode-web@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    restart: 'no'
+    command: ['node', 'tools/migrate.js']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://sealcode:${POSTGRES_PASSWORD}@postgres:5432/sealcode
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sealcode
+      POSTGRES_DB: sealcode
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sealcode -d sealcode']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backup:
+    image: ghcr.io/factorthr3/sealcode-backup@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGUSER: sealcode
+      PGDATABASE: sealcode
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_ENCRYPTION_KEY: ${BACKUP_ENCRYPTION_KEY}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION}
+      BACKUP_S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY}
+      BACKUP_S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY}
+    volumes:
+      - backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  certs:
+  pgdata:
+  backups:

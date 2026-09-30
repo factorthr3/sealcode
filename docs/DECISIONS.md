@@ -69,6 +69,13 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
   claims, avoids naming competitors (their prices are unverified), and marks the terms and privacy
   pages as drafts pending legal review.
 
+- **Backups** are encrypted with a sealed `BACKUP_ENCRYPTION_KEY` that only the CVM reads at
+  runtime, plus one offline escrow copy split between two people for disaster recovery. A
+  KMS-derived key that exists only inside the TEE would lose the backups if the app were lost.
+  Off-site copies go to any S3-compatible bucket, which is not yet chosen.
+- **Not chosen yet (third-party services, needs sign-off):** the uptime monitor and status-page
+  provider, and the off-site backup bucket. Both are documented in `deploy/runbooks`.
+
 ## New kinds of stored data
 
 Nothing below contains prompt or completion content.

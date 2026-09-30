@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /staff
+Disallow: /api
+Disallow: /device
+Disallow: /invite

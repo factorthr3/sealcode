@@ -1,0 +1,64 @@
+# Build release images reproducibly, push them to GHCR, and open a PR that pins their digests in
+# deploy/docker-compose.yml. Merge that PR and tag the merge commit (for example v1.0.0): that tag
+# is what the attestation is verified against.
+name: Release images
+
+on:
+  push:
+    tags: ['v*-rc*']
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        id: build
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          release="${GITHUB_REF_NAME%-rc*}"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          build() {
+            name="$1"; file="$2"
+            docker buildx build --platform linux/amd64 -f "$file" \
+              --build-arg SOURCE_COMMIT="$release" \
+              --output "type=image,name=ghcr.io/${{ github.repository_owner }}/sealcode-$name:$GITHUB_REF_NAME,push=true,rewrite-timestamp=true" \
+              --provenance=false --metadata-file "meta-$name.json" .
+            digest=$(jq -r '."containerimage.digest"' "meta-$name.json")
+            echo "$name=$digest" >> "$GITHUB_OUTPUT"
+            echo "sealcode-$name@$digest"
+          }
+          build gateway deploy/gateway.Dockerfile
+          build web deploy/web.Dockerfile
+          build backup deploy/backup/Dockerfile
+      - name: Pin digests in the compose file and open a PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          release="${{ steps.build.outputs.release }}"
+          owner="${{ github.repository_owner }}"
+          f=deploy/docker-compose.yml
+          sed -i -E "s#(ghcr.io/$owner/sealcode-gateway)@sha256:[0-9a-f]{64}#\1@${{ steps.build.outputs.gateway }}#g" "$f"
+          sed -i -E "s#(ghcr.io/$owner/sealcode-web)@sha256:[0-9a-f]{64}#\1@${{ steps.build.outputs.web }}#g" "$f"
+          sed -i -E "s#(ghcr.io/$owner/sealcode-backup)@sha256:[0-9a-f]{64}#\1@${{ steps.build.outputs.backup }}#g" "$f"
+          sed -i -E "s#^x-release: &release .*#x-release: \&release $release#" "$f"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "release/$release"
+          git commit -am "Pin $release image digests in the compose file"
+          git push origin "release/$release"
+          gh pr create --base main --head "release/$release" --title "Release $release" \
+            --body "Pins the images built from $GITHUB_REF_NAME. After merging, tag the merge commit $release and deploy it (deploy/README.md)."

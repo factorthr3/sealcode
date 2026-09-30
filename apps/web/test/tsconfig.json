@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["../next-env.d.ts", "../src/**/*.ts", "../src/**/*.tsx", "../.next/types/**/*.ts", "./**/*.ts", "../../../scripts/attestation/*.ts"],
+  "exclude": ["../node_modules"]
+}

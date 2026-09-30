@@ -1,0 +1,59 @@
+# Nightly: run the latest Claude Code through the gateway against live Phala, so a Claude Code
+# release that adds fields the upstream rejects is caught before customers hit it.
+# Needs the PHALA_API_KEY repository secret; skips cleanly without it.
+name: Claude Code compatibility (nightly)
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sealcode
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PHALA_API_KEY: ${{ secrets.PHALA_API_KEY }}
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/sealcode
+      KEY_PEPPER: ${{ github.run_id }}-nightly-pepper-0123456789abcdef
+      UPSTREAM_BASE_URL: https://inference.phala.com
+    steps:
+      - name: Skip without a Phala key
+        if: env.PHALA_API_KEY == ''
+        run: echo "PHALA_API_KEY secret not set; skipping." && exit 0
+      - uses: actions/checkout@v4
+        if: env.PHALA_API_KEY != ''
+      - uses: actions/setup-node@v4
+        if: env.PHALA_API_KEY != ''
+        with:
+          node-version: 22
+      - name: Install, migrate and seed
+        if: env.PHALA_API_KEY != ''
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile
+          pnpm db:migrate
+          echo "SEALCODE_KEY=$(pnpm --silent db:seed | grep -o 'sc_live_[0-9A-Za-z]*')" >> "$GITHUB_ENV"
+          npm install -g @anthropic-ai/claude-code@latest
+          claude --version
+      - name: Live API checks (Phala directly)
+        if: env.PHALA_API_KEY != ''
+        run: pnpm spike
+      - name: Claude Code end to end through the gateway
+        if: env.PHALA_API_KEY != ''
+        run: |
+          (cd apps/gateway && npx tsx src/index.ts &) && sleep 5
+          scripts/spike/claude-code-e2e.sh gateway | tee e2e.log
+          grep -q "RESULT: tests pass" e2e.log
