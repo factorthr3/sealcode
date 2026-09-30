@@ -97,7 +97,8 @@ export const ANNUAL_PRICING_ENABLED = false;
 /** Self-serve trial: no card, no Stripe. Activation happens when the customer contacts us. */
 export const TRIAL = {
   days: 14,
-  maxSeats: 5,
+  // The owner plus five teammates, so a team can run the full Claude Code flow.
+  maxSeats: 6,
   pooledTokens: 20_000_000,
   rateLimitRpm: 60,
 } as const;

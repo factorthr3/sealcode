@@ -45,3 +45,16 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
 - `pnpm bench` checks the added-latency target (50 concurrent streams).
 - Recorded SSE fixtures live in `apps/gateway/test/fixtures`; refresh them from Phala with
   `SPIKE_RECORD=1 PHALA_API_KEY=… pnpm spike`.
+
+## Database (packages/db)
+
+- Local databases: `createdb sealcode && createdb sealcode_test`. The `db` test project rebuilds
+  `sealcode_test` from migrations on every run (`TEST_DATABASE_URL` overrides it).
+- Dashboard code reads and writes tenant data only through `forOrg(db, orgId)` in `tenant.ts`.
+  Every function there filters by `org_id` in SQL; `test/tenant.test.ts` fails if a new function
+  isn't exercised against another org's IDs.
+- The gateway imports only `@sealcode/db/gateway-store` (raw SQL, no ORM) and uses its own
+  postgres.js client. Drizzle rewires the parsers on a client it wraps, so the store passes dates
+  and JSON as strings.
+- Tokens (sessions, magic links, invites, device codes) are stored as SHA-256 hashes; API keys as
+  HMAC-SHA256 with `KEY_PEPPER`. Plaintext keys exist only in the response that mints them.

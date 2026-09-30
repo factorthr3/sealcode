@@ -20,7 +20,9 @@ export default defineConfig({
         test: {
           name: 'db',
           include: ['packages/db/test/**/*.test.ts'],
+          globalSetup: ['packages/db/test/global-setup.ts'],
           fileParallelism: false,
+          testTimeout: 20_000,
         },
       },
       {
