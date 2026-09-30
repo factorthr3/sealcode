@@ -4,8 +4,8 @@
  *
  * - Unknown fields are dropped (and counted in `dropped_fields`).
  * - Event names must be short machine identifiers: no spaces, so no sentences, so no prompts.
- * - String values must match a strict identifier pattern (no whitespace, bounded length);
- *   anything else is replaced with "[redacted]".
+ * - String values must match a strict identifier pattern (no whitespace, bounded length) and
+ *   must not look like a credential; anything else is replaced with "[redacted]".
  * - Errors are reduced to `name` and `code`. Messages are never logged, because parser errors
  *   quote the input they failed on.
  */
@@ -60,6 +60,8 @@ const LEVEL_ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, e
 const EVENT_PATTERN = /^[a-z][a-z0-9_.:-]{0,79}$/;
 const ID_PATTERN = /^[A-Za-z0-9_.:/@+=-]{1,160}$/;
 const REDACTED = '[redacted]';
+/** Credentials match the identifier pattern, so they are refused explicitly. */
+const SECRET_PATTERN = /^(sc_live_|sc_demo_|bearer)/i;
 
 export type LogSink = (line: string) => void;
 
@@ -87,7 +89,10 @@ function sanitize(fields: LogFields | undefined): Record<string, string | number
     } else if (kind === 'boolean') {
       out[name] = typeof value === 'boolean' ? value : REDACTED;
     } else {
-      out[name] = typeof value === 'string' && ID_PATTERN.test(value) ? value : REDACTED;
+      out[name] =
+        typeof value === 'string' && ID_PATTERN.test(value) && !SECRET_PATTERN.test(value)
+          ? value
+          : REDACTED;
     }
   }
   if (dropped > 0) out.dropped_fields = dropped;

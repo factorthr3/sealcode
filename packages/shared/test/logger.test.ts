@@ -37,6 +37,12 @@ describe('allowlist logger', () => {
     expect(lines[0]).toMatchObject({ model: '[redacted]', status: '[redacted]' });
   });
 
+  it('redacts values that look like credentials', () => {
+    const { lines, logger } = capture();
+    logger.info('x', { key_id: 'sc_live_abc123', request_id: 'sc_demo_xyz' });
+    expect(lines[0]).toMatchObject({ key_id: '[redacted]', request_id: '[redacted]' });
+  });
+
   it('refuses free-text event names', () => {
     const { lines, logger } = capture();
     logger.error('user said: here is my private key');

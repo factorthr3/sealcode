@@ -9,6 +9,8 @@
  * Writes docs/spike-results.json. Evidence is metadata only.
  */
 import { writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { ALL_CHECKS, type CheckResult, type Target } from './checks';
 
 function target(): Target {
@@ -67,12 +69,18 @@ for (const check of ALL_CHECKS) {
   for (const line of r.evidence) console.log(`      ${line}`);
 }
 
+// Only a run against Phala is the spike; harness self-tests write to the temp directory.
+const kind = process.env.SPIKE_TARGET ?? 'phala';
+const out =
+  kind === 'phala'
+    ? new URL('../../docs/spike-results.json', import.meta.url)
+    : join(tmpdir(), `sealcode-spike-${kind}.json`);
 writeFileSync(
-  new URL('../../docs/spike-results.json', import.meta.url),
+  out,
   `${JSON.stringify({ ranAt: new Date().toISOString(), target: t.baseUrl, results }, null, 2)}\n`,
 );
 const failed = results.filter((r) => r.outcome === 'fail').length;
 console.log(
-  `\n${results.length - failed}/${results.length} checks passed. Results in docs/spike-results.json`,
+  `\n${results.length - failed}/${results.length} checks passed. Results in ${String(out)}`,
 );
 process.exit(failed ? 1 : 0);

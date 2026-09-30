@@ -96,6 +96,19 @@ export async function readSse(res: Response, onEvent?: (e: SseEvent) => void): P
   return events;
 }
 
+/** With SPIKE_RECORD=1, save a streamed response as a contract-test fixture. */
+function recorder(res: Response, name: string): () => Promise<void> {
+  if (process.env.SPIKE_RECORD !== '1') return async () => undefined;
+  const copy = res.clone();
+  return async () => {
+    const { writeFileSync } = await import('node:fs');
+    writeFileSync(
+      new URL(`../../apps/gateway/test/fixtures/${name}.sse`, import.meta.url),
+      await copy.text(),
+    );
+  };
+}
+
 function result(id: string, title: string, outcome: Outcome, evidence: string[]): CheckResult {
   return { id, title, outcome, evidence };
 }
@@ -134,7 +147,9 @@ export async function checkToolUse(t: Target): Promise<CheckResult> {
       ...evidence,
       `streaming: ${await errorSummary(sres)}`,
     ]);
+  const record = recorder(sres, 'tool_use_stream');
   const events = await readSse(sres);
+  await record();
   const toolStart = events.some(
     (e) =>
       e.event === 'content_block_start' &&
@@ -176,7 +191,9 @@ export async function checkStreamShape(t: Target): Promise<CheckResult> {
   });
   if (!res.ok) return result('stream_shape', title, 'fail', [await errorSummary(res)]);
   const contentType = res.headers.get('content-type') ?? '';
+  const record = recorder(res, 'text_stream');
   const events = await readSse(res);
+  await record();
   const names = events.map((e) => e.event).filter((n) => n !== 'ping');
   const seen = EXPECTED_ORDER.filter((n) => names.includes(n));
   const inOrder = EXPECTED_ORDER.every(
