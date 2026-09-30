@@ -1,0 +1,36 @@
+# Sealcode
+
+Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `docs/DECISIONS.md`
+(where the build deviates from it) before changing anything.
+
+## Setup
+
+- Node 22+ (`.nvmrc`), pnpm via corepack (`corepack enable pnpm`).
+- Postgres running locally (Homebrew `postgresql@17` is fine; production uses 16).
+- `cp .env.example .env`, then `pnpm install`.
+
+## Commands
+
+| Task                                                    | Command                                                                      |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| All unit + contract tests (mock upstream, no live keys) | `pnpm test`                                                                  |
+| One project                                             | `pnpm vitest run --project unit` (projects: `unit`, `gateway`, `db`, `live`) |
+| Lint / typecheck / format                               | `pnpm lint`, `pnpm typecheck`, `pnpm format`                                 |
+| Live Phala checks (needs `PHALA_API_KEY`)               | `pnpm test:live` or `pnpm spike`                                             |
+| Phase 0 harness against the mock                        | `SPIKE_TARGET=mock pnpm spike`                                               |
+
+## Conventions
+
+- Strict TypeScript, ESM, `moduleResolution: Bundler`. Workspace packages are consumed as TS source.
+- Plans, prices, limits, trial terms, playground limits and model aliases live only in
+  `packages/shared/src/{plans,models}.ts`. Never hard-code them elsewhere.
+- **Never log request or response bodies.** Services log only through `@sealcode/shared/logger`,
+  which drops non-allowlisted fields and redacts free text. Never log `err.message` or stacks; use
+  `errorFields(err)`. `no-console` is enforced outside tests and scripts.
+- Gateway-generated errors use `anthropicError()` / `openaiError()`; upstream errors pass through
+  byte-for-byte.
+- Every upstream request sets `provider.aci_verified = true`. Never add a fallback route.
+- Every DB query touching tenant data is scoped by `org_id`.
+- Default tests use the mock upstream. Anything that calls Phala goes in `*.live.test.ts`.
+- Ask before adding a third-party service, storing a new kind of data, or changing a security
+  requirement in the brief.

@@ -1,0 +1,36 @@
+{
+  "name": "sealcode",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @sealcode/gateway --filter @sealcode/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:live": "SEALCODE_LIVE=1 vitest run --project live",
+    "spike": "tsx scripts/spike/run.ts",
+    "bench": "tsx scripts/bench.ts",
+    "db:generate": "pnpm --filter @sealcode/db generate",
+    "db:migrate": "pnpm --filter @sealcode/db migrate",
+    "db:seed": "pnpm --filter @sealcode/db seed"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.4",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.2"
+  }
+}
