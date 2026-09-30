@@ -14,7 +14,8 @@
     "migrate": "tsx src/migrate-cli.ts",
     "seed": "tsx src/seed.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "staff:grant": "tsx src/staff-grant.ts"
+    "staff:grant": "tsx src/staff-grant.ts",
+    "build:migrate": "esbuild src/migrate-cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/migrate.js --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
   },
   "dependencies": {
     "@sealcode/shared": "workspace:*",
@@ -22,6 +23,7 @@
     "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.11"
+    "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2"
   }
 }

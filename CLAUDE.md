@@ -107,3 +107,13 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
   `pnpm --filter @sealcode/web start:local` (port 3400) and run `npx lighthouse`.
 - Every responsive grid needs an explicit `grid-cols-1` base, or wide children (tables, code)
   overflow the page on phones.
+
+## Deploy and operations
+
+- `deploy/docker-compose.yml` is measured into the attestation. Images are pinned by digest; the
+  `release` workflow fills in Sealcode's own digests on `v*-rc*` tags. Never deploy an untagged
+  compose file.
+- Security-relevant settings (`NODE_ENV=production`, domains, origins) go in the compose file, not
+  in sealed variables, so they are covered by the compose hash.
+- Backups: `deploy/backup/`; drill with `pnpm backup:drill`. Soak: `pnpm soak`.
+- Keep `docs/threat-model.md` current when the gateway, compose file or trust boundary changes.

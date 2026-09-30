@@ -20,7 +20,9 @@
     "bench": "tsx scripts/bench.ts",
     "db:generate": "pnpm --filter @sealcode/db generate",
     "db:migrate": "pnpm --filter @sealcode/db migrate",
-    "db:seed": "pnpm --filter @sealcode/db seed"
+    "db:seed": "pnpm --filter @sealcode/db seed",
+    "soak": "tsx scripts/soak.ts",
+    "backup:drill": "sh scripts/backup-drill.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
