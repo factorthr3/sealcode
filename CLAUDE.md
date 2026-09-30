@@ -81,3 +81,15 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
 - Touches only the `env` keys in `CLAUDE_CODE_MANAGED_KEYS`; `logout` restores their original
   values and keeps anything else the user changed. Commands take an injectable `Io` for tests.
 - Try it locally: `node packages/cli/build.mjs && CLAUDE_CONFIG_DIR=/tmp/cc node packages/cli/dist/cli.js login --site http://localhost:3300`.
+
+## Trust center and attestation
+
+- `apps/web/src/lib/dstack.ts` talks to the dstack guest agent (`/var/run/dstack.sock`, or
+  `DSTACK_SIMULATOR_ENDPOINT`) with two calls: `/Info` and `/GetQuote`. No SDK in the enclave.
+- `GET /api/attestation?nonce=<hex>` returns the compose hash, app-compose, event log and a TDX
+  quote whose report data is `sha256("sealcode-attestation:v1:" + nonce)`.
+- `scripts/verify-attestation.ts` is the customer verifier; its checks are pure functions in
+  `scripts/attestation/verify.ts` with unit tests. `apps/web/test/attestation.test.ts` runs the
+  page code against a fake guest agent.
+- The event digest formula (`sha384(type LE ‖ ":" ‖ event ‖ ":" ‖ payload)`) must be confirmed
+  against a real CVM on the first deploy (see `docs/spike-report.md`).
