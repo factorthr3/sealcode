@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Instrument_Serif, JetBrains_Mono } from 'next/font/google';
+import { Inter, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -9,7 +9,6 @@ const serif = Instrument_Serif({
   variable: '--font-serif',
   display: 'swap',
 });
-const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono-face', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.PUBLIC_SITE_URL ?? 'http://localhost:3000'),
@@ -31,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${inter.variable} ${serif.variable} ${mono.variable}`}>
+    <html lang="en-GB" className={`${inter.variable} ${serif.variable}`}>
       <body className="min-h-dvh bg-paper text-ink antialiased">{children}</body>
     </html>
   );

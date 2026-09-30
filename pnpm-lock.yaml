@@ -233,6 +233,9 @@ importers:
       '@sealcode/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      marked:
+        specifier: ^18.0.14
+        version: 18.0.14
       next:
         specifier: 16.3.7
         version: 16.3.7(@types/node@22.20.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1927,6 +1930,11 @@ packages:
   magic-string@1.4.2:
     resolution: {integrity: sha512-vG+rjFRj1PqdIBozIxAGMjPlOhaVe+GXpbttY/iSK7rGcJRMlwNJO7dcUwmUqkymsFLJiNGI06t4D7Fr7yRC9g==}
 
+  marked@18.0.14:
+    resolution: {integrity: sha512-mBHK6FBHuBAlhgRe88w9F0O1AbwwXJUcQibUbC/QcdTbVGAD7aWza+xt3N6oT/jCZx3/OMeS+8rnuiHZcQ9s7A==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
@@ -3493,6 +3501,8 @@ snapshots:
   magic-string@1.4.2:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  marked@18.0.14: {}
 
   minimatch@10.2.6:
     dependencies:

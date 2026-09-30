@@ -57,6 +57,17 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
 - **Postgres versions.** Production pins the `postgres:16` image by digest. Local development uses
   Homebrew Postgres 17, which is schema-compatible.
 - **TypeScript 6.0.** `typescript-eslint` doesn't support TypeScript 7 yet.
+- **No dstack SDK in the image.** `@phala/dstack-sdk` pulls in crypto peer dependencies we don't
+  use, so the web app calls the guest agent's `/Info` and `/GetQuote` itself
+  (`apps/web/src/lib/dstack.ts`).
+- **Customer docs are Markdown in `docs/customer`**, rendered at build time with `marked` (no
+  runtime dependency on the files). Plan-derived numbers are `{{placeholders}}` filled from config.
+- **Per-key rate limits raised** to trial 120, Team 240, Business 480 and Enterprise 1,000
+  requests per minute. A real Claude Code session with sub-agents hit the original 60 rpm trial
+  limit within a minute.
+- **Marketing claims** follow the brief's say/don't-say table. The site makes no certification
+  claims, avoids naming competitors (their prices are unverified), and marks the terms and privacy
+  pages as drafts pending legal review.
 
 ## New kinds of stored data
 

@@ -22,7 +22,7 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="grid gap-1 border-b border-line py-3 last:border-0 sm:grid-cols-[180px_1fr] sm:gap-4">
+    <div className="grid grid-cols-1 gap-1 border-b border-line py-3 last:border-0 sm:grid-cols-[180px_1fr] sm:gap-4">
       <dt className="text-sm text-muted">{label}</dt>
       <dd className={`min-w-0 break-all text-sm ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</dd>
     </div>
@@ -133,7 +133,7 @@ export default async function TrustPage() {
           commit the attestation names and run the verifier. It sends a fresh random nonce, so the
           quote you check is live.
         </p>
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_1fr]">
           <CodeBlock
             label="Terminal"
             code={`git clone ${source.repo}.git && cd sealcode
@@ -167,7 +167,7 @@ npx tsx scripts/verify-attestation.ts \\
         </p>
       </section>
 
-      <section className="mt-20 grid gap-8 lg:grid-cols-2">
+      <section className="mt-20 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div>
           <h2 className="font-display text-4xl tracking-tight">A receipt for every request</h2>
           <p className="mt-3 text-ink-2">
@@ -198,7 +198,7 @@ npx tsx scripts/verify-attestation.ts \\
         </Card>
       </section>
 
-      <section className="mt-20 grid gap-6 sm:grid-cols-2">
+      <section className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <Card className="p-6">
           <h2 className="font-semibold">What we can and can&rsquo;t see</h2>
           <p className="mt-2 text-sm text-muted">

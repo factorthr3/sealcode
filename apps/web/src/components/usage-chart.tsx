@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 
 export interface DailyPoint {
   day: string;
@@ -40,8 +40,19 @@ export function UsageChart({
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const id = useId();
-  const width = 720;
-  const height = 240;
+  const box = useRef<HTMLDivElement>(null);
+  // Draw at the container's real width so labels stay legible on small screens.
+  const [width, setWidth] = useState(720);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWidth(Math.max(280, Math.round(entry!.contentRect.width))),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const height = width < 480 ? 200 : 240;
   const pad = { top: 12, right: 8, bottom: 26, left: 48 };
   const plotW = width - pad.left - pad.right;
   const plotH = height - pad.top - pad.bottom;
@@ -55,7 +66,7 @@ export function UsageChart({
   const slot = plotW / Math.max(1, data.length);
   const barW = Math.max(2, Math.min(22, slot * 0.62));
   const y = (v: number) => pad.top + plotH - (v / max) * plotH;
-  const labelEvery = Math.ceil(data.length / 8);
+  const labelEvery = Math.ceil(data.length / (width < 480 ? 5 : 8));
 
   return (
     <figure className="viz-root" aria-labelledby={`${id}-title`}>
@@ -73,7 +84,7 @@ export function UsageChart({
           </span>
         ))}
       </div>
-      <div className="relative">
+      <div className="relative" ref={box}>
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="h-auto w-full"

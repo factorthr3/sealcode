@@ -109,7 +109,7 @@ export default async function UsagePage({ searchParams }: PageProps<'/app/usage'
           </nav>
         }
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Total tokens"
           value={formatTokens(total)}
@@ -133,7 +133,7 @@ export default async function UsagePage({ searchParams }: PageProps<'/app/usage'
         )}
       </Card>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         {orgWide ? (
           <section>
             <h2 className="mb-3 font-semibold">By seat</h2>

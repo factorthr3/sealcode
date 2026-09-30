@@ -88,7 +88,7 @@ export default function CompliancePage() {
         </Table>
       </section>
 
-      <section className="mt-14 grid gap-6 md:grid-cols-2">
+      <section className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="p-6">
           <h2 className="font-semibold">Data processing agreement</h2>
           <p className="mt-2 text-sm text-muted">

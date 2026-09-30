@@ -14,7 +14,7 @@ const STEPS = [
   ['Tell us what you need', 'Plan, seats and any procurement or security steps on your side.'],
   [
     'Get an order form',
-    'We send an order form and invoice in GBP or USD, usually within a working day. UK VAT is added where it applies.',
+    'We send an order form and invoice, usually within a working day. UK VAT is added where it applies.',
   ],
   [
     'We activate your organisation',
@@ -28,7 +28,7 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
   const pick = (v: string | string[] | undefined) =>
     typeof v === 'string' ? v.slice(0, 40) : undefined;
   return (
-    <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:py-24">
+    <div className="mx-auto grid grid-cols-1 max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:py-24">
       <div>
         <p className="text-sm font-medium text-seal">Contact sales</p>
         <h1 className="mt-3 font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl">

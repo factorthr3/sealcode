@@ -108,7 +108,9 @@
   --color-code-muted: var(--code-muted);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-serif), ui-serif, Georgia, serif;
-  --font-mono: var(--font-mono-face), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-mono:
+    ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, 'Cascadia Mono', Consolas, 'Liberation Mono',
+    monospace;
 }
 
 html {
@@ -180,4 +182,88 @@ body {
   margin-left: 2px;
   color: var(--seal);
   animation: caret 1s steps(1) infinite;
+}
+
+/* Customer docs, rendered from Markdown. */
+.prose-docs {
+  color: var(--ink-2);
+  line-height: 1.7;
+  max-width: 48rem;
+}
+.prose-docs > * + * {
+  margin-top: 1rem;
+}
+.prose-docs h2 {
+  margin-top: 2.5rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.prose-docs h3 {
+  margin-top: 1.75rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.prose-docs a {
+  color: var(--seal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-docs ul,
+.prose-docs ol {
+  padding-left: 1.25rem;
+}
+.prose-docs ul {
+  list-style: disc;
+}
+.prose-docs ol {
+  list-style: decimal;
+}
+.prose-docs li + li {
+  margin-top: 0.35rem;
+}
+.prose-docs :not(pre) > code {
+  border-radius: 0.3rem;
+  background: var(--surface-2);
+  padding: 0.1rem 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--ink);
+}
+.prose-docs pre {
+  overflow-x: auto;
+  border-radius: 0.6rem;
+  background: var(--code-bg);
+  padding: 1rem 1.1rem;
+  color: var(--code-ink);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.prose-docs table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.prose-docs th,
+.prose-docs td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.prose-docs th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Long identifiers (env var names, hashes) wrap instead of widening the page. */
+:not(pre) > code {
+  overflow-wrap: anywhere;
 }
