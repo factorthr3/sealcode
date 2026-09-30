@@ -9,7 +9,7 @@ each section.
 
 Billing does not go through Stripe for now. Milestone 4 changes as follows:
 
-- **Self-serve trial.** Signing up creates an org on a free trial: 14 days, up to 5 seats and 20M
+- **Self-serve trial.** Signing up creates an org on a free trial: 14 days, up to 6 seats (the owner plus five teammates) and 20M
   pooled tokens, which is one Team seat's allowance. No card is taken. The values live in
   `TRIAL` in `packages/shared/src/plans.ts`.
 - **Activation by contact.** The pricing page, the dashboard's Billing page and the gateway's
