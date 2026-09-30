@@ -59,7 +59,7 @@ export default async function BillingPage() {
       <div className="mt-5">
         <ActionForm
           action={requestActivation}
-          submitLabel="Request activation"
+          submitLabel={org.status === 'trial' ? 'Request activation' : 'Request change'}
           pendingLabel="Sending…"
         >
           <div className="grid gap-4 sm:grid-cols-2">
@@ -130,18 +130,23 @@ export default async function BillingPage() {
     );
   }
 
+  // Only months the org was on its paid plan for. Seat fees show the full month; any proration is
+  // set out in the order form.
+  const activatedMonth = org.activatedAt ? org.activatedAt.toISOString().slice(0, 7) : period;
   const statements = [
     { period, usage: thisMonth, label: 'This month (so far)' },
     { period: previousPeriod(period), usage: lastMonth, label: 'Last month' },
-  ].map((s) => ({
-    ...s,
-    statement: monthlyStatement({
-      plan,
-      seats: org.seats,
-      interval: org.billingInterval,
-      usage: s.usage,
-    }),
-  }));
+  ]
+    .filter((s) => s.period >= activatedMonth)
+    .map((s) => ({
+      ...s,
+      statement: monthlyStatement({
+        plan,
+        seats: org.seats,
+        interval: org.billingInterval,
+        usage: s.usage,
+      }),
+    }));
 
   return (
     <>
