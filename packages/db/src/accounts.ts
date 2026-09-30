@@ -9,6 +9,7 @@ import { maxSeatsFor, TRIAL, type BillingInterval, type PaidPlanId } from '@seal
 import type { Db } from './client';
 import {
   adminEvents,
+  apiKeys,
   deviceCodes,
   invites,
   magicLinks,
@@ -118,14 +119,12 @@ export function accounts(db: Db) {
         await tx
           .insert(memberships)
           .values({ orgId: org!.id, userId: input.ownerId, role: 'owner' });
-        await tx
-          .insert(adminEvents)
-          .values({
-            orgId: org!.id,
-            actorUserId: input.ownerId,
-            action: 'org.created',
-            targetId: org!.id,
-          });
+        await tx.insert(adminEvents).values({
+          orgId: org!.id,
+          actorUserId: input.ownerId,
+          action: 'org.created',
+          targetId: org!.id,
+        });
         return org!;
       });
     },
@@ -361,6 +360,26 @@ export function accounts(db: Db) {
       return { status: 'pending' as const };
     },
 
+    /** CLI logout: a key revokes itself, identified by its peppered hash. */
+    async revokeKeyByHash(hash: string) {
+      const [row] = await db
+        .update(apiKeys)
+        .set({ revokedAt: new Date() })
+        .where(and(eq(apiKeys.hash, hash), isNull(apiKeys.revokedAt)))
+        .returning({ id: apiKeys.id, orgId: apiKeys.orgId, userId: apiKeys.userId });
+      if (row) {
+        await db
+          .insert(adminEvents)
+          .values({
+            orgId: row.orgId,
+            actorUserId: row.userId,
+            action: 'key.revoked_by_cli',
+            targetId: row.id,
+          });
+      }
+      return !!row;
+    },
+
     // --- sales enquiries ---------------------------------------------------------------------
     async createEnquiry(input: {
       name: string;
@@ -482,14 +501,12 @@ export function accounts(db: Db) {
 
     async staffSetStatus(orgId: string, status: 'active' | 'suspended', staffId: string) {
       await db.update(orgs).set({ status }).where(eq(orgs.id, orgId));
-      await db
-        .insert(adminEvents)
-        .values({
-          orgId,
-          actorUserId: staffId,
-          action: `org.${status === 'active' ? 'reinstated' : 'suspended'}`,
-          targetId: orgId,
-        });
+      await db.insert(adminEvents).values({
+        orgId,
+        actorUserId: staffId,
+        action: `org.${status === 'active' ? 'reinstated' : 'suspended'}`,
+        targetId: orgId,
+      });
     },
 
     async staffExtendTrial(orgId: string, days: number, staffId: string) {
@@ -499,15 +516,13 @@ export function accounts(db: Db) {
           trialEndsAt: sql`greatest(coalesce(${orgs.trialEndsAt}, now()), now()) + make_interval(days => ${days})`,
         })
         .where(and(eq(orgs.id, orgId), eq(orgs.status, 'trial')));
-      await db
-        .insert(adminEvents)
-        .values({
-          orgId,
-          actorUserId: staffId,
-          action: 'trial.extended',
-          targetId: orgId,
-          metadata: { days },
-        });
+      await db.insert(adminEvents).values({
+        orgId,
+        actorUserId: staffId,
+        action: 'trial.extended',
+        targetId: orgId,
+        metadata: { days },
+      });
     },
 
     async subscriptionsFor(orgId: string) {

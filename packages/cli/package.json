@@ -1,0 +1,36 @@
+{
+  "name": "sealcode",
+  "version": "0.1.0",
+  "description": "Connect Claude Code to Sealcode, the confidential AI coding gateway, in one command.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "sealcode": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "prepublishOnly": "node build.mjs"
+  },
+  "keywords": [
+    "claude-code",
+    "llm-gateway",
+    "confidential-computing",
+    "tee"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/factorthr3/sealcode",
+    "directory": "packages/cli"
+  },
+  "devDependencies": {
+    "@sealcode/shared": "workspace:*",
+    "esbuild": "^0.28.2"
+  }
+}
