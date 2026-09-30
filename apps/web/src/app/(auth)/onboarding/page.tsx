@@ -17,7 +17,7 @@ export default async function OnboardingPage({ searchParams }: PageProps<'/onboa
       <p className="mt-2 mb-6 text-sm text-muted">
         Your {TRIAL.days}-day trial includes {TRIAL.maxSeats} seats and{' '}
         {formatTokens(TRIAL.pooledTokens)} tokens. When you&rsquo;re ready, contact us to activate a
-        plan. No card needed now.
+        plan. No card needed now. There&rsquo;s one trial per company email domain.
       </p>
       <OnboardingForm defaultName={typeof name === 'string' ? name.slice(0, 120) : ''} />
     </Card>

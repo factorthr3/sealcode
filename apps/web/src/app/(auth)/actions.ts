@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { emailDomain, isPersonalEmailDomain } from '@sealcode/shared';
 import { acc } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
 import { env } from '@/lib/env';
@@ -22,6 +23,13 @@ function safeNext(value: unknown, fallback = '/app'): string {
 
 const emailSchema = z.string().trim().toLowerCase().email().max(254);
 
+const PERSONAL_EMAIL_ERROR =
+  'Please use your work email to start a trial. Personal addresses (Gmail, Outlook and similar) can join a team when invited.';
+
+function domainTakenError(domain: string): string {
+  return `Someone at ${domain} has already started a Sealcode trial. Ask them to invite you, or contact sales@sealcode.dev if you need a separate one.`;
+}
+
 export async function requestMagicLink(_prev: FormState, form: FormData): Promise<FormState> {
   const email = emailSchema.safeParse(form.get('email'));
   if (!email.success) return { error: 'Enter a valid work email address.' };
@@ -31,6 +39,9 @@ export async function requestMagicLink(_prev: FormState, form: FormData): Promis
   const next = company
     ? `/onboarding?name=${encodeURIComponent(company)}`
     : safeNext(form.get('next'));
+  // Starting a trial needs a work address; personal ones can still sign in and join by invite.
+  if (company && isPersonalEmailDomain(emailDomain(email.data)))
+    return { error: PERSONAL_EMAIL_ERROR };
 
   const ip = (await clientKey()) ?? 'shared';
   if (
@@ -108,7 +119,20 @@ export async function createOrganisation(_prev: FormState, form: FormData): Prom
   if (s.orgs.filter((o) => o.role === 'owner').length >= 3) {
     return { error: 'You already own three organisations. Contact us if you need more.' };
   }
-  const org = await acc().createOrgWithOwner({ name: name.data, ownerId: s.user.id });
+  // One self-serve trial per company domain, from a work address. Staff can create orgs for demos.
+  let trialDomain: string | null = null;
+  if (!s.user.isStaff) {
+    trialDomain = emailDomain(s.user.email);
+    if (isPersonalEmailDomain(trialDomain)) return { error: PERSONAL_EMAIL_ERROR };
+    if (await acc().trialDomainTaken(trialDomain)) return { error: domainTakenError(trialDomain) };
+  }
+  let org;
+  try {
+    org = await acc().createOrgWithOwner({ name: name.data, ownerId: s.user.id, trialDomain });
+  } catch {
+    // The unique index caught a simultaneous sign-up from the same domain.
+    return { error: domainTakenError(trialDomain ?? '') };
+  }
   await acc().setSessionOrg(s.token, org.id);
   // Owners must use two-factor login: set it up before the dashboard.
   redirect(

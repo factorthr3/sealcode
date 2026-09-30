@@ -19,6 +19,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 
@@ -33,22 +34,32 @@ export const budgetMode = pgEnum('budget_mode', ['hard', 'soft']);
 export const billingInterval = pgEnum('billing_interval', ['monthly', 'annual']);
 export const budgetScope = pgEnum('budget_scope', ['org', 'seat']);
 
-export const orgs = pgTable('orgs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  status: orgStatus('status').notNull().default('trial'),
-  plan: plan('plan').notNull().default('trial'),
-  /** Purchased seats. On a trial, the trial seat limit applies instead. */
-  seats: integer('seats').notNull().default(0),
-  billingInterval: billingInterval('billing_interval').notNull().default('monthly'),
-  trialEndsAt: ts('trial_ends_at'),
-  budgetMode: budgetMode('budget_mode').notNull().default('soft'),
-  /** Per-key requests per minute; `null` uses the plan default. */
-  rateLimitRpm: integer('rate_limit_rpm'),
-  createdAt: created(),
-  activatedAt: ts('activated_at'),
-});
+export const orgs = pgTable(
+  'orgs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    status: orgStatus('status').notNull().default('trial'),
+    plan: plan('plan').notNull().default('trial'),
+    /** Purchased seats. On a trial, the trial seat limit applies instead. */
+    seats: integer('seats').notNull().default(0),
+    billingInterval: billingInterval('billing_interval').notNull().default('monthly'),
+    trialEndsAt: ts('trial_ends_at'),
+    budgetMode: budgetMode('budget_mode').notNull().default('soft'),
+    /** Per-key requests per minute; `null` uses the plan default. */
+    rateLimitRpm: integer('rate_limit_rpm'),
+    createdAt: created(),
+    activatedAt: ts('activated_at'),
+    /** The company email domain that started this self-serve trial: one trial per domain. */
+    trialDomain: text('trial_domain'),
+  },
+  (t) => [
+    uniqueIndex('orgs_trial_domain_uniq')
+      .on(t.trialDomain)
+      .where(sql`trial_domain is not null`),
+  ],
+);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),

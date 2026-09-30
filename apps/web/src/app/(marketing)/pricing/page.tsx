@@ -57,7 +57,7 @@ export default function PricingPage() {
             <p className="font-semibold">Free {TRIAL.days}-day trial</p>
             <p className="text-sm text-ink-2">
               {TRIAL.maxSeats} seats, {formatTokens(TRIAL.pooledTokens)} tokens, every feature. No
-              card, no sales call.
+              card, no sales call. One trial per company.
             </p>
           </div>
           <ButtonLink href="/signup">Start free trial</ButtonLink>

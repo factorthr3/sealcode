@@ -105,11 +105,8 @@ export default async function BillingPage() {
   );
 
   if (org.status === 'trial') {
-    const used =
-      thisMonth.inputTokens +
-      thisMonth.outputTokens +
-      thisMonth.cacheReadTokens +
-      thisMonth.cacheWriteTokens;
+    // The trial allowance covers the whole trial, not a calendar month.
+    const used = await repo.trialUsage();
     return (
       <>
         <PageHeader title="Billing" description="You’re on the free trial. No card needed." />

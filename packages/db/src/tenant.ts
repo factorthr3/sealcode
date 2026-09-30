@@ -310,6 +310,15 @@ export function forOrg(db: Db, orgId: string) {
       };
     },
 
+    /** Tokens used across every month: a trial's allowance covers the whole trial. */
+    async trialUsage(): Promise<number> {
+      const [row] = await db
+        .select({ tokens: sql<number>`coalesce(sum(${usageMonthly.tokens}), 0)::bigint` })
+        .from(usageMonthly)
+        .where(inOrg(usageMonthly));
+      return Number(row?.tokens ?? 0);
+    },
+
     async seatUsage(period: string) {
       return db
         .select({ userId: usageMonthly.userId, tokens: usageMonthly.tokens })

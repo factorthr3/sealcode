@@ -17,6 +17,10 @@ export default function SignupPage() {
         </li>
         <li>✓ {formatTokens(TRIAL.pooledTokens)} tokens on GLM 5.3, inside hardware enclaves</li>
       </ul>
+      <p className="mt-4 text-xs text-muted">
+        Use your work email: one trial per company. If a colleague has already started one, ask them
+        to invite you.
+      </p>
       <div className="mt-6">
         <LoginForm withCompany />
       </div>

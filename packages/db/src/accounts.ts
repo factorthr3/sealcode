@@ -103,7 +103,25 @@ export function accounts(db: Db) {
 
     // --- orgs --------------------------------------------------------------------------------
     /** A new org starts on the self-serve trial with its creator as owner. */
-    async createOrgWithOwner(input: { name: string; ownerId: string }) {
+    /** Whether a company domain has already had a self-serve trial. */
+    async trialDomainTaken(domain: string): Promise<boolean> {
+      const [row] = await db
+        .select({ id: orgs.id })
+        .from(orgs)
+        .where(eq(orgs.trialDomain, domain.toLowerCase()))
+        .limit(1);
+      return !!row;
+    },
+
+    /**
+     * `trialDomain` records the company domain behind a self-serve trial. A unique index enforces
+     * one trial per domain, so a race between two sign-ups can't create two.
+     */
+    async createOrgWithOwner(input: {
+      name: string;
+      ownerId: string;
+      trialDomain?: string | null;
+    }) {
       return db.transaction(async (tx) => {
         const [org] = await tx
           .insert(orgs)
@@ -115,6 +133,7 @@ export function accounts(db: Db) {
             seats: TRIAL.maxSeats,
             trialEndsAt: new Date(Date.now() + TRIAL.days * 86_400_000),
             budgetMode: 'hard',
+            trialDomain: input.trialDomain?.toLowerCase() ?? null,
           })
           .returning();
         await tx

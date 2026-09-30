@@ -27,6 +27,20 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
 - Stripe can be added later behind the same plan config. Nothing in the schema assumes manual
   billing beyond `subscriptions.source = 'manual'`.
 
+### Trial limits (30 Sept 2026, @Chris)
+
+- **One allowance per trial.** The 20M-token trial allowance covers the whole 14 days. It does not
+  reset on the 1st of the month, which would have doubled it for trials spanning two months. Trial
+  budget alerts also fire once per trial. Paid plans keep monthly budgets.
+- **Work email and one trial per company.** Starting a trial needs a work address: consumer and
+  disposable domains (`PERSONAL_EMAIL_DOMAINS` in `packages/shared/src/email-policy.ts`) are
+  refused, though they can still sign in and join by invite. Each company domain gets one
+  self-serve trial, enforced by a unique index on `orgs.trial_domain`. The domain check runs only
+  after the magic link proves the address, so outsiders can't probe which companies use Sealcode.
+  Staff-created orgs are exempt. Colleagues are told to ask for an invite or contact sales.
+- At current Phala prices a fully used trial costs about $31 upstream (95% input, no caching), or
+  about $16 with 70% of input from cache.
+
 ### Try before you buy (30 Sept 2026, @Chris)
 
 - **Live playground on the landing page.** Anonymous visitors can send coding prompts to

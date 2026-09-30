@@ -5,7 +5,7 @@ import { DashboardNav, type NavItem } from '@/components/dashboard-nav';
 import { SubmitButton } from '@/components/form-controls';
 import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui';
-import { currentPeriod, daysLeft } from '@/lib/format';
+import { daysLeft } from '@/lib/format';
 import { can, ROLE_LABELS } from '@/lib/permissions';
 import { requireOrg } from '@/lib/session';
 import { signOut, switchOrg } from '../../(auth)/actions';
@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/app'>)
 
   let trialBanner: React.ReactNode = null;
   if (full?.status === 'trial') {
-    const used = (await repo.seatUsage(currentPeriod())).reduce((n, r) => n + r.tokens, 0);
+    const used = await repo.trialUsage();
     const allowance = resolveOrgBudget('trial', full.seats, null) ?? 0;
     const left = daysLeft(full.trialEndsAt);
     trialBanner = (

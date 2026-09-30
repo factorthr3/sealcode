@@ -262,16 +262,23 @@ export function createGateway(deps: GatewayDeps): Hono {
     }
   }
 
-  async function monthUsage(ctx: KeyContext, at: number): Promise<MonthUsage> {
-    const period = periodOf(new Date(at));
-    const cacheKey = `${ctx.orgId}:${ctx.userId}:${period}`;
+  /** Budgets run per calendar month, except a trial's: one allowance for the whole trial. */
+  function usageScope(ctx: KeyContext, at: number): string {
+    return ctx.plan === 'trial' ? 'trial' : periodOf(new Date(at));
+  }
+
+  async function budgetUsage(ctx: KeyContext, at: number): Promise<MonthUsage> {
+    const scope = usageScope(ctx, at);
+    const cacheKey = `${ctx.orgId}:${ctx.userId}:${scope}`;
     const cached = usageCache.get(cacheKey, at);
     if (cached) return cached;
     let pending = usageLookups.get(cacheKey);
     if (!pending) {
-      pending = store
-        .getMonthUsage(ctx.orgId, ctx.userId, period)
-        .finally(() => usageLookups.delete(cacheKey));
+      pending = (
+        scope === 'trial'
+          ? store.getTrialUsage(ctx.orgId, ctx.userId)
+          : store.getMonthUsage(ctx.orgId, ctx.userId, scope)
+      ).finally(() => usageLookups.delete(cacheKey));
       usageLookups.set(cacheKey, pending);
     }
     const fresh = await pending;
@@ -309,7 +316,9 @@ export function createGateway(deps: GatewayDeps): Hono {
         : `Your organisation has reached its monthly token budget of ${formatTokens(ctx.orgBudgetTokens)}. An admin can raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
     }
     if (ctx.seatBudgetTokens !== null && usage.seatTokens >= ctx.seatBudgetTokens) {
-      return `You have reached your monthly seat budget of ${formatTokens(ctx.seatBudgetTokens)}. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
+      return ctx.plan === 'trial'
+        ? `You have reached your seat budget of ${formatTokens(ctx.seatBudgetTokens)} for this trial. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets.`
+        : `You have reached your monthly seat budget of ${formatTokens(ctx.seatBudgetTokens)}. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
     }
     return null;
   }
@@ -400,10 +409,13 @@ export function createGateway(deps: GatewayDeps): Hono {
             logger.error('usage.record_failed', { request_id: requestId, ...errorFields(err) }),
           );
         if (tokens > 0) {
-          usageCache.update(`${keyCtx.orgId}:${keyCtx.userId}:${periodOf(createdAt)}`, (u) => ({
-            orgTokens: u.orgTokens + tokens,
-            seatTokens: u.seatTokens + tokens,
-          }));
+          usageCache.update(
+            `${keyCtx.orgId}:${keyCtx.userId}:${usageScope(keyCtx, started)}`,
+            (u) => ({
+              orgTokens: u.orgTokens + tokens,
+              seatTokens: u.seatTokens + tokens,
+            }),
+          );
         }
         if (at - (lastTouched.get(keyCtx.keyId) ?? 0) > 60_000) {
           lastTouched.set(keyCtx.keyId, at);
@@ -538,7 +550,7 @@ export function createGateway(deps: GatewayDeps): Hono {
           { 'retry-after': String(rate.retryAfter) },
         );
       }
-      const exhausted = budgetExhausted(keyCtx, await monthUsage(keyCtx, started), started);
+      const exhausted = budgetExhausted(keyCtx, await budgetUsage(keyCtx, started), started);
       if (exhausted) {
         return refuse(
           'rate_limit_error',
