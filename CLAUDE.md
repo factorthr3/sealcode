@@ -34,3 +34,14 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
 - Default tests use the mock upstream. Anything that calls Phala goes in `*.live.test.ts`.
 - Ask before adding a third-party service, storing a new kind of data, or changing a security
   requirement in the brief.
+
+## Gateway (apps/gateway)
+
+- `src/app.ts` is the whole request pipeline: auth → org state → body → alias → limits → upstream
+  → relay + meter → one audit row. Keep it small and readable; customers audit it.
+- `mock/` is the stand-in for Phala used by tests and local dev. It is not part of the build.
+- Local dev without Postgres: `DEV_API_KEY=sc_live_… pnpm --filter @sealcode/gateway dev` with
+  `pnpm --filter @sealcode/gateway dev:mock` running.
+- `pnpm bench` checks the added-latency target (50 concurrent streams).
+- Recorded SSE fixtures live in `apps/gateway/test/fixtures`; refresh them from Phala with
+  `SPIKE_RECORD=1 PHALA_API_KEY=… pnpm spike`.

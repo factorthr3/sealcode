@@ -13,6 +13,7 @@ export default defineConfig({
         test: {
           name: 'gateway',
           include: ['apps/gateway/test/**/*.test.ts'],
+          setupFiles: ['apps/gateway/test/setup.ts'],
         },
       },
       {
