@@ -60,7 +60,7 @@ export default async function OverviewPage({ searchParams }: PageProps<'/app'>) 
           <Callout tone="warn">That page needs an owner or admin role.</Callout>
         </div>
       ) : null}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label={orgWide ? 'Tokens this month' : 'Your tokens this month'}
           value={formatTokens(orgWide ? totalTokens(totals) : myTokens)}
@@ -74,7 +74,7 @@ export default async function OverviewPage({ searchParams }: PageProps<'/app'>) 
         <Stat label="Members" value={formatInt(members.length)} />
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-5">
+      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-5">
         <Card className="p-6 xl:col-span-2">
           <h2 className="font-semibold">Get set up</h2>
           <ol className="mt-4 space-y-3">

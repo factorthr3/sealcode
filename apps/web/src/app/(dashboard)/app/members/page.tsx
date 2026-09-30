@@ -71,7 +71,7 @@ export default async function MembersPage() {
             </div>
           </ActionForm>
         </div>
-        <dl className="mt-5 grid gap-2 text-xs text-muted sm:grid-cols-2">
+        <dl className="mt-5 grid grid-cols-1 gap-2 text-xs text-muted sm:grid-cols-2">
           {Object.entries(ROLE_HELP).map(([r, help]) => (
             <div key={r}>
               <dt className="inline font-medium text-ink-2">

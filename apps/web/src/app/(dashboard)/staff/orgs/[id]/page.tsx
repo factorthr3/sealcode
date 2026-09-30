@@ -65,7 +65,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
           }
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Status"
           value={
@@ -96,7 +96,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
         />
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Card className="p-6">
           <h2 className="text-lg font-semibold">
             {org.status === 'trial' ? 'Activate plan' : 'Update agreement'}
@@ -110,7 +110,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
               submitLabel={org.status === 'trial' ? 'Activate' : 'Save agreement'}
               pendingLabel="Saving…"
             >
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Plan">
                   <select
                     name="plan"

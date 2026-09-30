@@ -80,7 +80,7 @@ export default async function BudgetsPage() {
             </label>
           </fieldset>
           {trial ? <input type="hidden" name="mode" value="hard" /> : null}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field
               label="Organisation monthly cap"
               hint={

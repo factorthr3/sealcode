@@ -93,3 +93,17 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
   page code against a fake guest agent.
 - The event digest formula (`sha384(type LE ‖ ":" ‖ event ‖ ":" ‖ payload)`) must be confirmed
   against a real CVM on the first deploy (see `docs/spike-report.md`).
+
+## Marketing site
+
+- Pages live in `apps/web/src/app/(marketing)`. The landing page's playground
+  (`components/playground.tsx`) loads lazily as it nears the viewport and talks to the gateway
+  directly with a playground token.
+- Copy must follow the brief's "Say / Don't say" table: no "unhackable", no certifications before
+  an audit, nothing implying Anthropic endorsement, and the trademark notice stays in the footer.
+- Pricing, trial terms, limits and model names render from `@sealcode/shared`; docs use
+  `{{placeholders}}` for plan numbers (`lib/docs.ts`).
+- Check Lighthouse against a production build: `pnpm --filter @sealcode/web build`, then
+  `pnpm --filter @sealcode/web start:local` (port 3400) and run `npx lighthouse`.
+- Every responsive grid needs an explicit `grid-cols-1` base, or wide children (tables, code)
+  overflow the page on phones.

@@ -62,7 +62,7 @@ export default async function BillingPage() {
           submitLabel={org.status === 'trial' ? 'Request activation' : 'Request change'}
           pendingLabel="Sending…"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Plan">
               <select
                 name="plan"
@@ -113,7 +113,7 @@ export default async function BillingPage() {
     return (
       <>
         <PageHeader title="Billing" description="You’re on the free trial. No card needed." />
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Stat
             label="Trial ends"
             value={formatDate(org.trialEndsAt)}
@@ -154,7 +154,7 @@ export default async function BillingPage() {
         title="Billing"
         description="Your plan and monthly statements. Statements are computed from the audit log with the published overage rates."
       />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Plan"
           value={planName(plan)}

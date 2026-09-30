@@ -32,7 +32,7 @@ export function ContactForm({
           Website <input name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Your name" error={fe.name}>
           <input name="name" required autoComplete="name" className={inputClass} />
         </Field>

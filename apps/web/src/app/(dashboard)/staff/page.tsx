@@ -28,7 +28,7 @@ export default async function StaffHome() {
         title="Staff console"
         description="Enquiries, trials and activations. Activation records the agreement and lifts trial limits immediately."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="New enquiries" value={open.length} />
         <Stat label="Active orgs" value={orgs.filter((o) => o.status === 'active').length} />
         <Stat

@@ -6,11 +6,13 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "typecheck": "next typegen && tsc -p tsconfig.json --noEmit"
+    "typecheck": "next typegen && tsc -p tsconfig.json --noEmit",
+    "start:local": "node --env-file=../../.env node_modules/next/dist/bin/next start --port 3400"
   },
   "dependencies": {
     "@sealcode/db": "workspace:*",
     "@sealcode/shared": "workspace:*",
+    "marked": "^18.0.14",
     "next": "16.3.7",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
