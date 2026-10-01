@@ -51,6 +51,18 @@ export class MemoryStore implements GatewayStore {
     return { orgTokens, seatTokens };
   }
 
+  async getTrialUsage(orgId: string, userId: string): Promise<MonthUsage> {
+    let orgTokens = 0;
+    let seatTokens = 0;
+    for (const r of this.records) {
+      if (r.orgId !== orgId) continue;
+      const t = totalTokens(r.usage);
+      orgTokens += t;
+      if (r.userId === userId) seatTokens += t;
+    }
+    return { orgTokens, seatTokens };
+  }
+
   async recordUsage(record: UsageRecord): Promise<void> {
     this.records.push(record);
   }

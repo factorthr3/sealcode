@@ -57,7 +57,7 @@ Errors Sealcode generates use the Anthropic envelope on `/v1/messages` and the O
 | ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | 400    | `invalid_request_error` | The body isn't a JSON object, or the upstream rejected it                                                                       |
 | 401    | `authentication_error`  | Missing, unknown or revoked key                                                                                                 |
-| 403    | `permission_error`      | Trial ended or organisation suspended                                                                                           |
+| 403    | `permission_error`      | Pilot ended or organisation suspended                                                                                           |
 | 404    | `not_found_error`       | Unknown model                                                                                                                   |
 | 413    | `request_too_large`     | Body over 32 MB                                                                                                                 |
 | 429    | `rate_limit_error`      | Per-key rate limit (short `retry-after`) or exhausted hard-stop budget (`retry-after` until month end, `x-should-retry: false`) |
@@ -67,7 +67,7 @@ Errors Sealcode generates use the Anthropic envelope on `/v1/messages` and the O
 
 | Plan       | Requests per minute per key |
 | ---------- | --------------------------- |
-| Trial      | {{rpm.trial}}               |
+| Pilot      | {{rpm.trial}}               |
 | Team       | {{rpm.team}}                |
 | Business   | {{rpm.business}}            |
 | Enterprise | {{rpm.enterprise}}          |

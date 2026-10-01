@@ -7,7 +7,8 @@ order: 1
 # Claude Code quickstart
 
 Sealcode works with the Claude Code you already have. You need Node.js 18.17 or later and a
-Sealcode account (a free trial is fine).
+Sealcode account: your organisation's admin
+invites you.
 
 ## 1. Connect with one command
 
@@ -77,7 +78,7 @@ not your code. If your firewall blocks that host, add this to `~/.claude/setting
 | A warning about two credential sources | `ANTHROPIC_API_KEY` is set in your shell. Remove it from your shell profile, or run `/logout` in Claude Code to clear a saved claude.ai login. |
 | `401` "API key has been revoked"       | An admin revoked this device's key. Run `npx sealcode login` again.                                                                            |
 | `429` "monthly token budget"           | Your organisation or seat hit a hard-stop budget. Ask an admin to raise it under **Budgets**.                                                  |
-| `403` "trial ended"                    | Contact us to activate your plan: [sealcode.dev/contact](/contact).                                                                            |
+| `403` "pilot ended"                    | Contact us to agree your plan: [sealcode.dev/contact](/contact).                                                                               |
 | `400` naming an unrecognised field     | Make sure `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` is `1`, then update Claude Code.                                                            |
 
 ## Disconnect

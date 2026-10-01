@@ -75,6 +75,8 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
         seat_budget: string | null;
         org_total: string;
         seat_total: string;
+        org_total_all: string;
+        seat_total_all: string;
       }[]
     >`
       select o.plan, o.seats,
@@ -84,9 +86,14 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
           (select monthly_tokens from budgets where org_id = o.id and scope = 'seat' and user_id is null)
         ) as seat_budget,
         coalesce((select sum(tokens) from usage_monthly where org_id = o.id and period = ${period}), 0) as org_total,
-        coalesce((select tokens from usage_monthly where org_id = o.id and period = ${period} and user_id = ${userId}), 0) as seat_total
+        coalesce((select tokens from usage_monthly where org_id = o.id and period = ${period} and user_id = ${userId}), 0) as seat_total,
+        coalesce((select sum(tokens) from usage_monthly where org_id = o.id), 0) as org_total_all,
+        coalesce((select sum(tokens) from usage_monthly where org_id = o.id and user_id = ${userId}), 0) as seat_total_all
       from orgs o where o.id = ${orgId}`;
     if (!row) return [];
+    // A trial's allowance covers the whole trial, so its alerts are too: once each, not monthly.
+    const trial = row.plan === 'trial';
+    const alertPeriod = trial ? 'trial' : period;
     const checks: {
       scope: 'org' | 'seat';
       userId: string | null;
@@ -97,9 +104,14 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
         scope: 'org',
         userId: null,
         budget: resolveOrgBudget(row.plan, row.seats, num(row.org_budget)),
-        used: Number(row.org_total),
+        used: Number(trial ? row.org_total_all : row.org_total),
       },
-      { scope: 'seat', userId, budget: num(row.seat_budget), used: Number(row.seat_total) },
+      {
+        scope: 'seat',
+        userId,
+        budget: num(row.seat_budget),
+        used: Number(trial ? row.seat_total_all : row.seat_total),
+      },
     ];
     const raised: BudgetAlert[] = [];
     for (const check of checks) {
@@ -108,7 +120,7 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
         if (check.used < (check.budget * threshold) / 100) continue;
         const inserted = await sql`
           insert into budget_alerts (org_id, scope, user_id, period, threshold)
-          values (${orgId}, ${check.scope}, ${check.userId}, ${period}, ${threshold})
+          values (${orgId}, ${check.scope}, ${check.userId}, ${alertPeriod}, ${threshold})
           on conflict on constraint budget_alerts_uniq do nothing
           returning id`;
         if (inserted.length === 0) continue;
@@ -116,7 +128,7 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
           orgId,
           scope: check.scope,
           userId: check.userId,
-          period,
+          period: alertPeriod,
           threshold,
           budget: check.budget,
           used: check.used,
@@ -126,7 +138,7 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
           values ('budget_alert', ${orgId}, ${JSON.stringify({
             scope: alert.scope,
             userId: alert.userId,
-            period,
+            period: alertPeriod,
             threshold,
             budget: alert.budget,
             used: alert.used,
@@ -170,6 +182,14 @@ export function createGatewayStore(sql: Sql): GatewayStore & {
         select coalesce(sum(tokens), 0) as org,
                coalesce(sum(tokens) filter (where user_id = ${userId}), 0) as seat
         from usage_monthly where org_id = ${orgId} and period = ${period}`;
+      return { orgTokens: Number(row?.org ?? 0), seatTokens: Number(row?.seat ?? 0) };
+    },
+
+    async getTrialUsage(orgId: string, userId: string): Promise<MonthUsage> {
+      const [row] = await sql<{ org: string; seat: string }[]>`
+        select coalesce(sum(tokens), 0) as org,
+               coalesce(sum(tokens) filter (where user_id = ${userId}), 0) as seat
+        from usage_monthly where org_id = ${orgId}`;
       return { orgTokens: Number(row?.org ?? 0), seatTokens: Number(row?.seat ?? 0) };
     },
 

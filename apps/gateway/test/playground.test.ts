@@ -64,7 +64,7 @@ describe('playground tokens', () => {
     }
     const res = await call(t, token);
     expect(res.status).toBe(429);
-    expect((await res.json()).error.message).toContain('free trial');
+    expect((await res.json()).error.message).toContain('pilot');
   });
 
   it('stops for the day at the global token cap', async () => {

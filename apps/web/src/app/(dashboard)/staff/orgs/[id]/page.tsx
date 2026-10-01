@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import {
   formatTokens,
   formatUsd,
+  isCustomPriced,
   monthlyStatement,
   PAID_PLAN_IDS,
   planName,
@@ -12,7 +13,7 @@ import {
 } from '@sealcode/shared';
 import { ActionForm } from '@/components/action-form';
 import { SubmitButton } from '@/components/form-controls';
-import { Badge, Card, Field, inputClass, PageHeader, Stat, Table } from '@/components/ui';
+import { Badge, Callout, Card, Field, inputClass, PageHeader, Stat, Table } from '@/components/ui';
 import { acc, tenant } from '@/lib/db';
 import { currentPeriod, daysLeft, formatDate, formatDateTime } from '@/lib/format';
 import { ROLE_LABELS } from '@/lib/permissions';
@@ -20,8 +21,12 @@ import { activateOrg, extendTrial, setOrgStatus } from '../../actions';
 
 export const metadata: Metadata = { title: 'Organisation' };
 
-export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[id]'>) {
+export default async function StaffOrgPage({
+  params,
+  searchParams,
+}: PageProps<'/staff/orgs/[id]'>) {
   const { id } = await params;
+  const { created } = await searchParams;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const repo = tenant(id);
   const org = await repo.org();
@@ -48,6 +53,14 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
       <Link href="/staff" className="text-sm text-seal hover:underline">
         ← All organisations
       </Link>
+      {created ? (
+        <div className="mt-4">
+          <Callout tone="verified" title="Organisation created">
+            The owner has been emailed an invitation, valid for 14 days. It appears under Members
+            once accepted.
+          </Callout>
+        </div>
+      ) : null}
       <div className="mt-3">
         <PageHeader
           title={org.name}
@@ -79,7 +92,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
           }
           hint={
             org.status === 'trial'
-              ? `Trial ends ${formatDate(org.trialEndsAt)} (${daysLeft(org.trialEndsAt)} days)`
+              ? `Pilot ends ${formatDate(org.trialEndsAt)} (${daysLeft(org.trialEndsAt)} days)`
               : `Activated ${formatDate(org.activatedAt)}`
           }
         />
@@ -91,8 +104,14 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
         <Stat label="Seats in use" value={seats} hint={`${members.length} members`} />
         <Stat
           label={`Statement ${period}`}
-          value={formatUsd(statement.totalUsd, { cents: true })}
-          hint={`${formatTokens(statement.usedTokens)} tokens · overage ${formatUsd(statement.overageUsd, { cents: true })}`}
+          value={
+            isCustomPriced(plan) ? 'Per agreement' : formatUsd(statement.totalUsd, { cents: true })
+          }
+          hint={
+            isCustomPriced(plan)
+              ? `${formatTokens(statement.usedTokens)} tokens this month`
+              : `${formatTokens(statement.usedTokens)} tokens · overage ${formatUsd(statement.overageUsd, { cents: true })}`
+          }
         />
       </div>
 
@@ -102,7 +121,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
             {org.status === 'trial' ? 'Activate plan' : 'Update agreement'}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Records the agreement, lifts trial limits and emails the org&rsquo;s owners and admins.
+            Records the agreement, lifts pilot limits and emails the org&rsquo;s owners and admins.
           </p>
           <div className="mt-5">
             <ActionForm
@@ -162,7 +181,7 @@ export default async function StaffOrgPage({ params }: PageProps<'/staff/orgs/[i
         <div className="space-y-6">
           {org.status === 'trial' ? (
             <Card className="p-6">
-              <h2 className="font-semibold">Extend trial</h2>
+              <h2 className="font-semibold">Extend pilot</h2>
               <form action={extendTrial.bind(null, id)} className="mt-4 flex items-end gap-3">
                 <Field label="Days">
                   <input

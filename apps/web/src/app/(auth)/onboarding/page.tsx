@@ -1,25 +1,47 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { formatTokens, TRIAL } from '@sealcode/shared';
-import { Card } from '@/components/ui';
+import { SALES_EMAIL } from '@sealcode/shared';
+import { SubmitButton } from '@/components/form-controls';
+import { ButtonLink, Card } from '@/components/ui';
 import { getSession } from '@/lib/session';
-import { OnboardingForm } from './onboarding-form';
+import { signOut } from '../actions';
 
-export const metadata: Metadata = { title: 'Create your organisation' };
+export const metadata: Metadata = { title: 'Almost there' };
 
-export default async function OnboardingPage({ searchParams }: PageProps<'/onboarding'>) {
+/** Signed in, but not a member of any organisation yet. Organisations are created by Sealcode. */
+export default async function OnboardingPage() {
   const s = await getSession();
-  if (!s) redirect('/login?next=/onboarding');
-  const { name } = await searchParams;
+  if (!s) redirect('/login');
+  if (s.orgs.length > 0) redirect('/app');
   return (
     <Card className="p-8">
-      <h1 className="font-display text-4xl tracking-tight">Create your organisation</h1>
-      <p className="mt-2 mb-6 text-sm text-muted">
-        Your {TRIAL.days}-day trial includes {TRIAL.maxSeats} seats and{' '}
-        {formatTokens(TRIAL.pooledTokens)} tokens. When you&rsquo;re ready, contact us to activate a
-        plan. No card needed now.
+      <h1 className="font-display text-4xl tracking-tight">
+        You&rsquo;re not in an organisation yet
+      </h1>
+      <p className="mt-3 text-sm text-ink-2">
+        You&rsquo;re signed in as <strong className="text-ink">{s.user.email}</strong>. Sealcode
+        organisations are set up by our team once pricing is agreed. If your company already uses
+        Sealcode, ask one of its admins to invite this email address.
       </p>
-      <OnboardingForm defaultName={typeof name === 'string' ? name.slice(0, 120) : ''} />
+      <div className="mt-6 grid gap-2">
+        {s.user.isStaff ? (
+          <ButtonLink href="/staff">Create an organisation in the staff console</ButtonLink>
+        ) : (
+          <ButtonLink href="/contact?reason=pricing">Contact sales</ButtonLink>
+        )}
+        <form action={signOut}>
+          <SubmitButton variant="ghost" className="w-full">
+            Sign out
+          </SubmitButton>
+        </form>
+      </div>
+      <p className="mt-6 text-xs text-muted">
+        Questions? Email{' '}
+        <a href={`mailto:${SALES_EMAIL}`} className="underline">
+          {SALES_EMAIL}
+        </a>
+        .
+      </p>
     </Card>
   );
 }

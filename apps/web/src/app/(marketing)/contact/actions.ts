@@ -83,7 +83,7 @@ export async function submitEnquiry(_prev: ContactState, form: FormData): Promis
   await trySendEmail({
     to: d.email,
     subject: 'Thanks for contacting Sealcode',
-    text: `Hi ${d.name},\n\nThanks for getting in touch about Sealcode for ${d.company}. We reply within one working day.\n\nIn the meantime you can try Sealcode yourself: the live playground is on our homepage, and a free 14-day trial takes a minute to start at ${e.PUBLIC_SITE_URL}/signup.\n\nThe Sealcode team`,
+    text: `Hi ${d.name},\n\nThanks for getting in touch about Sealcode for ${d.company}. We reply within one working day.\n\nIn the meantime you can try Sealcode yourself in the live playground on our homepage: ${e.PUBLIC_SITE_URL}/#playground\n\nThe Sealcode team`,
   });
   return { sent: true };
 }

@@ -1,6 +1,6 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
-import { monthlyStatement, OVERAGE_PER_MTOK, type PlanId } from '@sealcode/shared';
+import { isCustomPriced, monthlyStatement, OVERAGE_PER_MTOK, type PlanId } from '@sealcode/shared';
 import { csvRow } from './csv';
 import { tenant } from './db';
 
@@ -38,7 +38,13 @@ export async function statementCsv(orgId: string, month: string) {
     ['overage_usd', st.overageUsd.toFixed(2)],
     ['total_usd_ex_vat', st.totalUsd.toFixed(2)],
   ];
-  const csv = csvRow(['field', 'value']) + rows.map((r) => csvRow(r)).join('');
+  // Enterprise is priced per agreement: report usage, not the list-price calculation.
+  const out = isCustomPriced(org.plan as PlanId)
+    ? rows.map(([k, v]): [string, unknown] =>
+        /_usd$|overage_rate/.test(k) ? [k, 'per agreement'] : [k, v],
+      )
+    : rows;
+  const csv = csvRow(['field', 'value']) + out.map((r) => csvRow(r)).join('');
   return new NextResponse(csv, {
     headers: {
       'content-type': 'text/csv; charset=utf-8',

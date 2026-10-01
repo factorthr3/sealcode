@@ -3,6 +3,7 @@ import { seatLimit } from '@sealcode/db';
 import {
   formatTokens,
   formatUsd,
+  isCustomPriced,
   monthlyStatement,
   PAID_PLAN_IDS,
   planName,
@@ -45,12 +46,12 @@ export default async function BillingPage() {
   const activation = (
     <Card className="p-6">
       <h2 className="text-lg font-semibold">
-        {org.status === 'trial' ? 'Activate your plan' : 'Change plan or seats'}
+        {org.status === 'trial' ? 'Move to a plan' : 'Change plan or seats'}
       </h2>
       <p className="mt-1 text-sm text-muted">
-        We don&rsquo;t take cards online yet. Tell us what you need and we&rsquo;ll send an order
-        form and invoice, usually within one working day. Your{' '}
-        {org.status === 'trial' ? 'trial' : 'service'} keeps running meanwhile. Or email{' '}
+        Tell us what you need and we&rsquo;ll send pricing, an order form and an invoice, usually
+        within one working day. Your {org.status === 'trial' ? 'pilot' : 'service'} keeps running
+        meanwhile. Or email{' '}
         <a href={`mailto:${SALES_EMAIL}`} className="text-seal hover:underline">
           {SALES_EMAIL}
         </a>
@@ -74,7 +75,7 @@ export default async function BillingPage() {
                     {PLANS[id].name}
                     {PLANS[id].pricePerSeatMonthly
                       ? ` (${formatUsd(PLANS[id].pricePerSeatMonthly!)}/seat/month)`
-                      : ' (custom)'}
+                      : ' (priced with you)'}
                   </option>
                 ))}
               </select>
@@ -105,17 +106,14 @@ export default async function BillingPage() {
   );
 
   if (org.status === 'trial') {
-    const used =
-      thisMonth.inputTokens +
-      thisMonth.outputTokens +
-      thisMonth.cacheReadTokens +
-      thisMonth.cacheWriteTokens;
+    // A pilot's allowance covers the whole pilot, not a calendar month.
+    const used = await repo.trialUsage();
     return (
       <>
-        <PageHeader title="Billing" description="You’re on the free trial. No card needed." />
+        <PageHeader title="Billing" description="You’re on a pilot. There’s nothing to pay." />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Stat
-            label="Trial ends"
+            label="Pilot ends"
             value={formatDate(org.trialEndsAt)}
             hint={`${daysLeft(org.trialEndsAt)} days left`}
           />
@@ -133,6 +131,8 @@ export default async function BillingPage() {
   // Only months the org was on its paid plan for. Seat fees show the full month; any proration is
   // set out in the order form.
   const activatedMonth = org.activatedAt ? org.activatedAt.toISOString().slice(0, 7) : period;
+  // Enterprise has no list price: its charges come from the agreement, not the calculator.
+  const custom = isCustomPriced(plan);
   const statements = [
     { period, usage: thisMonth, label: 'This month (so far)' },
     { period: previousPeriod(period), usage: lastMonth, label: 'Last month' },
@@ -152,7 +152,11 @@ export default async function BillingPage() {
     <>
       <PageHeader
         title="Billing"
-        description="Your plan and monthly statements. Statements are computed from the audit log with the published overage rates."
+        description={
+          custom
+            ? 'Your plan and monthly usage. Charges are as set out in your agreement.'
+            : 'Your plan and monthly statements, computed from the audit log with the rates in your order form.'
+        }
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
@@ -185,17 +189,19 @@ export default async function BillingPage() {
                 <span className="text-xs text-muted">{label}</span>
               </td>
               <td className="text-right tabular-nums">
-                {formatUsd(statement.seatFeesUsd + statement.platformFeeUsd, { cents: true })}
+                {custom
+                  ? 'Per agreement'
+                  : formatUsd(statement.seatFeesUsd + statement.platformFeeUsd, { cents: true })}
               </td>
               <td className="text-right tabular-nums">
                 {formatTokens(statement.usedTokens)} /{' '}
                 {statement.allowanceTokens ? formatTokens(statement.allowanceTokens) : 'custom'}
               </td>
               <td className="text-right tabular-nums">
-                {formatUsd(statement.overageUsd, { cents: true })}
+                {custom ? 'Per agreement' : formatUsd(statement.overageUsd, { cents: true })}
               </td>
               <td className="text-right font-medium tabular-nums">
-                {formatUsd(statement.totalUsd, { cents: true })}
+                {custom ? 'Per agreement' : formatUsd(statement.totalUsd, { cents: true })}
               </td>
               <td className="text-right">
                 <a

@@ -365,7 +365,7 @@ export function Playground() {
             }}
             placeholder={
               remaining === 0
-                ? 'Session limit reached. Start a free trial to keep going.'
+                ? 'Session limit reached. Contact us to set up a pilot on your own code.'
                 : 'Ask a coding question… (Enter to send)'
             }
             className="min-h-[2.75rem] flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] placeholder:text-muted focus:outline-none"
@@ -393,7 +393,7 @@ export function Playground() {
             {remaining} of {PLAYGROUND.maxRequestsPerToken} requests left this session · answers
             capped at {PLAYGROUND.maxOutputTokens} tokens
           </span>
-          <span>No tools here: the trial connects Claude Code to your repo.</span>
+          <span>No tools here: a pilot connects Claude Code to your repo.</span>
         </p>
       </form>
     </div>

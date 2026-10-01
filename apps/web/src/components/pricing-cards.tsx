@@ -1,13 +1,23 @@
-import { formatTokens, formatUsd, PAID_PLAN_IDS, PLANS, TRIAL } from '@sealcode/shared';
+import {
+  formatTokens,
+  formatUsd,
+  PAID_PLAN_IDS,
+  PLANS,
+  SHOW_PUBLIC_PRICES,
+} from '@sealcode/shared';
 import { ButtonLink } from './ui';
 
-/** Plan cards, straight from the shared plan config that billing statements use. */
+/**
+ * Plan cards from the shared plan config that billing statements use. Team and Business show list
+ * prices; Enterprise is priced with each customer. Every call to action goes to sales.
+ */
 export function PricingCards({ compact = false }: { compact?: boolean }) {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {PAID_PLAN_IDS.map((id) => {
         const plan = PLANS[id];
         const featured = plan.highlighted;
+        const listed = SHOW_PUBLIC_PRICES && plan.pricePerSeatMonthly !== null;
         return (
           <div
             key={id}
@@ -25,28 +35,33 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
             <h3 className="font-display text-3xl">{plan.name}</h3>
             <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
             <div className="mt-6">
-              {plan.pricePerSeatMonthly !== null ? (
-                <p>
-                  <span className="text-4xl font-semibold tracking-tight">
-                    {formatUsd(plan.pricePerSeatMonthly)}
-                  </span>
-                  <span className="text-sm text-muted"> per seat / month</span>
-                </p>
+              {listed ? (
+                <>
+                  <p>
+                    <span className="text-4xl font-semibold tracking-tight">
+                      {formatUsd(plan.pricePerSeatMonthly!)}
+                    </span>
+                    <span className="text-sm text-muted"> per seat / month</span>
+                  </p>
+                  <p className="mt-1 text-xs text-muted">
+                    {plan.minSeats}-seat minimum
+                    {plan.includedTokensPerSeat
+                      ? ` · ${formatTokens(plan.includedTokensPerSeat)} tokens per seat, pooled`
+                      : ''}
+                  </p>
+                </>
               ) : (
-                <p>
-                  <span className="text-sm text-muted">From </span>
-                  <span className="text-4xl font-semibold tracking-tight">
-                    {formatUsd(plan.platformFeeMonthly ?? 0)}
-                  </span>
-                  <span className="text-sm text-muted"> / month platform fee, plus seats</span>
-                </p>
+                <>
+                  <p className="text-2xl font-semibold tracking-tight">
+                    {plan.pricePerSeatMonthly === null ? 'Priced with you' : 'Pricing on request'}
+                  </p>
+                  <p className="mt-1 text-xs text-muted">
+                    {plan.pricePerSeatMonthly === null
+                      ? 'Agreed for your organisation’s size and needs.'
+                      : 'Per seat, with a pooled monthly token allowance.'}
+                  </p>
+                </>
               )}
-              <p className="mt-1 text-xs text-muted">
-                {plan.minSeats}-seat minimum ·{' '}
-                {plan.includedTokensPerSeat
-                  ? `${formatTokens(plan.includedTokensPerSeat)} tokens per seat, pooled`
-                  : 'custom token allowance'}
-              </p>
             </div>
             {!compact ? (
               <ul className="mt-6 flex-1 space-y-2.5 text-sm">
@@ -63,27 +78,12 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
               <div className="flex-1" />
             )}
             <div className="mt-7 grid gap-2">
-              {id === 'enterprise' ? (
-                <ButtonLink
-                  href={`/contact?plan=${id}&reason=activation`}
-                  variant={featured ? 'primary' : 'secondary'}
-                >
-                  Talk to us
-                </ButtonLink>
-              ) : (
-                <>
-                  <ButtonLink href="/signup" variant={featured ? 'primary' : 'secondary'}>
-                    Start {TRIAL.days}-day free trial
-                  </ButtonLink>
-                  <ButtonLink
-                    href={`/contact?plan=${id}&seats=${plan.minSeats}&reason=activation`}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Buy {plan.name} →
-                  </ButtonLink>
-                </>
-              )}
+              <ButtonLink
+                href={`/contact?plan=${id}${plan.pricePerSeatMonthly !== null ? `&seats=${plan.minSeats}` : ''}&reason=pricing`}
+                variant={featured ? 'primary' : 'secondary'}
+              >
+                {id === 'enterprise' ? 'Talk to us about pricing' : `Get ${plan.name}`}
+              </ButtonLink>
             </div>
           </div>
         );

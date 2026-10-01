@@ -49,6 +49,8 @@ export interface GatewayStore {
   /** Look a key up by its peppered hash. Returns revoked keys too, so the error can say so. */
   findKey(hash: string): Promise<KeyContext | null>;
   getMonthUsage(orgId: string, userId: string, period: string): Promise<MonthUsage>;
+  /** Usage across every period: a trial's allowance covers the whole trial, not a calendar month. */
+  getTrialUsage(orgId: string, userId: string): Promise<MonthUsage>;
   recordUsage(record: UsageRecord): Promise<void>;
   touchKey(keyId: string, at: Date): Promise<void>;
   playgroundTokensToday(day: string): Promise<number>;

@@ -53,9 +53,10 @@ output tokens, latency, status and the Phala receipt ID. It never contains promp
 
 ## Billing
 
-Trials last 14 days. To activate a plan, use **Billing → Request activation** or
-[contact us](/contact). We send an order form and invoice, then switch the same organisation to
-its plan. Nothing needs reconfiguring.
+Sealcode sets up your organisation once pricing is agreed, and invites its first owner. To
+change plan or seats, or to move a pilot onto a plan, use **Billing → Request change** or
+[contact us](/contact). We send an order form and invoice, then update the same organisation.
+Nothing needs reconfiguring.
 
 The billing page shows each month's statement, calculated from your audit log with the published
 overage rates, and exports it as CSV.

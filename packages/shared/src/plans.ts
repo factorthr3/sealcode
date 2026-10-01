@@ -69,9 +69,10 @@ export const PLANS: Record<PaidPlanId, PlanDefinition> = {
     id: 'enterprise',
     name: 'Enterprise',
     tagline: 'Dedicated infrastructure and security review support.',
+    // Priced per customer: agreed in the order form, never listed.
     pricePerSeatMonthly: null,
     pricePerSeatAnnual: null,
-    platformFeeMonthly: 2500,
+    platformFeeMonthly: null,
     minSeats: 50,
     includedTokensPerSeat: null,
     rateLimitRpm: 1_000,
@@ -89,15 +90,32 @@ export const PLANS: Record<PaidPlanId, PlanDefinition> = {
 export const PAID_PLAN_IDS = Object.keys(PLANS) as PaidPlanId[];
 
 /**
+ * Team and Business list prices are published; Enterprise is priced with each customer. There is
+ * no self-serve checkout or trial: buying any plan goes through sales.
+ */
+export const SHOW_PUBLIC_PRICES = true;
+
+/** Plans with no list price (Enterprise): statements defer to the customer's agreement. */
+export function isCustomPriced(plan: PlanId): boolean {
+  return (
+    plan !== 'trial' &&
+    PLANS[plan].pricePerSeatMonthly === null &&
+    PLANS[plan].platformFeeMonthly === null
+  );
+}
+
+/**
  * Annual discounts stay hidden until the spike confirms prompt caching: without it, full-use
  * margin on annual Business pricing falls to 22% (docs/BRIEF.md, unit economics).
  */
 export const ANNUAL_PRICING_ENABLED = false;
 
-/** Self-serve trial: no card, no Stripe. Activation happens when the customer contacts us. */
+/**
+ * Pilot terms for organisations staff create with the "pilot" option (design partners). There is
+ * no self-serve trial: prospects contact sales. Internally the plan is still called `trial`.
+ */
 export const TRIAL = {
   days: 14,
-  // The owner plus five teammates, so a team can run the full Claude Code flow.
   maxSeats: 6,
   pooledTokens: 20_000_000,
   // Claude Code fans out to parallel sub-agents, so per-key limits leave headroom for bursts.
@@ -137,7 +155,7 @@ export const SUPPORT_EMAIL = 'support@sealcode.dev';
 export const SECURITY_EMAIL = 'security@sealcode.dev';
 
 export function planName(plan: PlanId): string {
-  return plan === 'trial' ? 'Trial' : PLANS[plan].name;
+  return plan === 'trial' ? 'Pilot' : PLANS[plan].name;
 }
 
 /** Monthly pooled token allowance for an org, or `null` when set per contract. */

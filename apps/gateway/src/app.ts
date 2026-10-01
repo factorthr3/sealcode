@@ -262,16 +262,23 @@ export function createGateway(deps: GatewayDeps): Hono {
     }
   }
 
-  async function monthUsage(ctx: KeyContext, at: number): Promise<MonthUsage> {
-    const period = periodOf(new Date(at));
-    const cacheKey = `${ctx.orgId}:${ctx.userId}:${period}`;
+  /** Budgets run per calendar month, except a pilot's: one allowance for the whole pilot. */
+  function usageScope(ctx: KeyContext, at: number): string {
+    return ctx.plan === 'trial' ? 'trial' : periodOf(new Date(at));
+  }
+
+  async function budgetUsage(ctx: KeyContext, at: number): Promise<MonthUsage> {
+    const scope = usageScope(ctx, at);
+    const cacheKey = `${ctx.orgId}:${ctx.userId}:${scope}`;
     const cached = usageCache.get(cacheKey, at);
     if (cached) return cached;
     let pending = usageLookups.get(cacheKey);
     if (!pending) {
-      pending = store
-        .getMonthUsage(ctx.orgId, ctx.userId, period)
-        .finally(() => usageLookups.delete(cacheKey));
+      pending = (
+        scope === 'trial'
+          ? store.getTrialUsage(ctx.orgId, ctx.userId)
+          : store.getMonthUsage(ctx.orgId, ctx.userId, scope)
+      ).finally(() => usageLookups.delete(cacheKey));
       usageLookups.set(cacheKey, pending);
     }
     const fresh = await pending;
@@ -305,11 +312,13 @@ export function createGateway(deps: GatewayDeps): Hono {
       .slice(0, 10);
     if (ctx.orgBudgetTokens !== null && usage.orgTokens >= ctx.orgBudgetTokens) {
       return ctx.plan === 'trial'
-        ? `Your Sealcode trial has used its ${formatTokens(ctx.orgBudgetTokens)} token allowance. Email ${SALES_EMAIL} or visit ${cfg.siteUrl}/contact to activate a plan.`
+        ? `Your Sealcode pilot has used its ${formatTokens(ctx.orgBudgetTokens)} token allowance. Email ${SALES_EMAIL} or visit ${cfg.siteUrl}/contact to agree a plan.`
         : `Your organisation has reached its monthly token budget of ${formatTokens(ctx.orgBudgetTokens)}. An admin can raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
     }
     if (ctx.seatBudgetTokens !== null && usage.seatTokens >= ctx.seatBudgetTokens) {
-      return `You have reached your monthly seat budget of ${formatTokens(ctx.seatBudgetTokens)}. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
+      return ctx.plan === 'trial'
+        ? `You have reached your seat budget of ${formatTokens(ctx.seatBudgetTokens)} for this pilot. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets.`
+        : `You have reached your monthly seat budget of ${formatTokens(ctx.seatBudgetTokens)}. Ask an admin to raise it at ${cfg.siteUrl}/app/budgets. It resets on ${resets}.`;
     }
     return null;
   }
@@ -400,10 +409,13 @@ export function createGateway(deps: GatewayDeps): Hono {
             logger.error('usage.record_failed', { request_id: requestId, ...errorFields(err) }),
           );
         if (tokens > 0) {
-          usageCache.update(`${keyCtx.orgId}:${keyCtx.userId}:${periodOf(createdAt)}`, (u) => ({
-            orgTokens: u.orgTokens + tokens,
-            seatTokens: u.seatTokens + tokens,
-          }));
+          usageCache.update(
+            `${keyCtx.orgId}:${keyCtx.userId}:${usageScope(keyCtx, started)}`,
+            (u) => ({
+              orgTokens: u.orgTokens + tokens,
+              seatTokens: u.seatTokens + tokens,
+            }),
+          );
         }
         if (at - (lastTouched.get(keyCtx.keyId) ?? 0) > 60_000) {
           lastTouched.set(keyCtx.keyId, at);
@@ -445,7 +457,7 @@ export function createGateway(deps: GatewayDeps): Hono {
       ) {
         return refuse(
           'permission_error',
-          `Your Sealcode trial ended on ${keyCtx.trialEndsAt.toISOString().slice(0, 10)}. Email ${SALES_EMAIL} or visit ${cfg.siteUrl}/contact to activate a plan.`,
+          `Your Sealcode pilot ended on ${keyCtx.trialEndsAt.toISOString().slice(0, 10)}. Email ${SALES_EMAIL} or visit ${cfg.siteUrl}/contact to agree a plan.`,
           'trial_expired',
         );
       }
@@ -485,7 +497,7 @@ export function createGateway(deps: GatewayDeps): Hono {
       if (Array.isArray(body.tools) && body.tools.length > 0) {
         return refuse(
           'invalid_request_error',
-          'Tools are not available in the playground. Start a free trial to use Sealcode with Claude Code.',
+          `Tools are not available in the playground. Contact us at ${cfg.siteUrl}/contact to set up a pilot with Claude Code.`,
           'playground_limit',
         );
       }
@@ -493,7 +505,7 @@ export function createGateway(deps: GatewayDeps): Hono {
       if (state.count >= PLAYGROUND.maxRequestsPerToken) {
         return refuse(
           'rate_limit_error',
-          'This playground session has used all its requests. Refresh the page for another, or start a free trial.',
+          'This playground session has used all its requests. Refresh the page for another, or contact us to set up a pilot.',
           'playground_limit',
           { 'retry-after': '120', 'x-should-retry': 'false' },
         );
@@ -512,7 +524,7 @@ export function createGateway(deps: GatewayDeps): Hono {
       if ((await playgroundTokensToday(started)) >= PLAYGROUND.dailyTokenCap) {
         return refuse(
           'rate_limit_error',
-          `The playground has reached today's capacity. Start a free trial at ${cfg.siteUrl}/signup to keep going.`,
+          `The playground has reached today's capacity. Contact us at ${cfg.siteUrl}/contact to set up a pilot.`,
           'playground_limit',
           { 'retry-after': '3600', 'x-should-retry': 'false' },
         );
@@ -538,7 +550,7 @@ export function createGateway(deps: GatewayDeps): Hono {
           { 'retry-after': String(rate.retryAfter) },
         );
       }
-      const exhausted = budgetExhausted(keyCtx, await monthUsage(keyCtx, started), started);
+      const exhausted = budgetExhausted(keyCtx, await budgetUsage(keyCtx, started), started);
       if (exhausted) {
         return refuse(
           'rate_limit_error',

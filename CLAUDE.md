@@ -22,7 +22,7 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
 ## Conventions
 
 - Strict TypeScript, ESM, `moduleResolution: Bundler`. Workspace packages are consumed as TS source.
-- Plans, prices, limits, trial terms, playground limits and model aliases live only in
+- Plans, prices, limits, pilot (`TRIAL`) terms, playground limits and model aliases live only in
   `packages/shared/src/{plans,models}.ts`. Never hard-code them elsewhere.
 - **Never log request or response bodies.** Services log only through `@sealcode/shared/logger`,
   which drops non-allowlisted fields and redacts free text. Never log `err.message` or stacks; use
@@ -101,7 +101,7 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
   directly with a playground token.
 - Copy must follow the brief's "Say / Don't say" table: no "unhackable", no certifications before
   an audit, nothing implying Anthropic endorsement, and the trademark notice stays in the footer.
-- Pricing, trial terms, limits and model names render from `@sealcode/shared`; docs use
+- Pricing, pilot terms, limits and model names render from `@sealcode/shared`; docs use
   `{{placeholders}}` for plan numbers (`lib/docs.ts`).
 - Check Lighthouse against a production build: `pnpm --filter @sealcode/web build`, then
   `pnpm --filter @sealcode/web start:local` (port 3400) and run `npx lighthouse`.
@@ -117,3 +117,11 @@ Confidential AI coding gateway. Read `docs/BRIEF.md` (the product brief) and `do
   in sealed variables, so they are covered by the compose hash.
 - Backups: `deploy/backup/`; drill with `pnpm backup:drill`. Soak: `pnpm soak`.
 - Keep `docs/threat-model.md` current when the gateway, compose file or trust boundary changes.
+
+## Commercial model
+
+- Sales-led: no self-serve sign-up or trial. Staff create customer organisations (paid plan or
+  pilot) in `/staff`, which invites the first owner. The internal `trial` plan/status means
+  "pilot" in all UI copy.
+- Team and Business prices are public (`SHOW_PUBLIC_PRICES`); Enterprise is priced per agreement
+  (`isCustomPriced`), so never show computed charges for it.
