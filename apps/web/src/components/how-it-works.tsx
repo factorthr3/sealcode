@@ -25,6 +25,14 @@ const NODES = [
   },
 ];
 
+/** The gateway while it runs on standard cloud hosting, before the move into a Confidential VM. */
+const GATEWAY_STANDARD = {
+  kicker: 'Sealcode gateway',
+  title: 'Standard cloud hosting, for now',
+  body: 'Checks your key, limits and budget, and meters tokens. Never logs or stores prompts. Moving into a Phala Confidential VM.',
+  inside: false,
+};
+
 function Node({ n, i }: { n: (typeof NODES)[number]; i: number }) {
   return (
     <li className="relative rounded-xl border border-line bg-surface p-5">
@@ -37,13 +45,25 @@ function Node({ n, i }: { n: (typeof NODES)[number]; i: number }) {
   );
 }
 
-/** The request path and the trust boundary: three hops, all inside hardware enclaves. */
-export function HowItWorks() {
+/**
+ * The request path and the trust boundary. In a Confidential VM (`tee`) all three hops after the
+ * developer's machine are inside hardware enclaves; on standard hosting the gateway is outside.
+ */
+export function HowItWorks({ tee }: { tee: boolean }) {
+  const nodes = tee
+    ? NODES
+    : NODES.map((n) => (n.kicker === GATEWAY_STANDARD.kicker ? GATEWAY_STANDARD : n));
+  const outside = nodes.filter((n) => !n.inside);
+  const inside = nodes.filter((n) => n.inside);
   return (
     <div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_3.25fr] lg:items-stretch">
-        <ol className="grid">
-          <Node n={NODES[0]!} i={0} />
+      <div
+        className={`grid grid-cols-1 gap-4 lg:items-stretch ${tee ? 'lg:grid-cols-[1fr_3.25fr]' : 'lg:grid-cols-[2fr_2.2fr]'}`}
+      >
+        <ol className={`grid grid-cols-1 gap-3 ${tee ? '' : 'md:grid-cols-2'}`}>
+          {outside.map((n, i) => (
+            <Node key={n.kicker} n={n} i={i} />
+          ))}
         </ol>
         <div className="rounded-2xl border-2 border-dashed border-verified/50 bg-verified-soft/40 p-3 sm:p-4">
           <p className="mb-3 flex items-start gap-2 px-1 font-mono text-[11px] uppercase leading-snug tracking-[0.14em] text-verified">
@@ -53,9 +73,9 @@ export function HowItWorks() {
             </span>
             Hardware-isolated: host, Phala staff and our operators can&rsquo;t read enclave memory
           </p>
-          <ol className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {NODES.slice(1).map((n, i) => (
-              <Node key={n.kicker} n={n} i={i + 1} />
+          <ol className={`grid grid-cols-1 gap-3 ${tee ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+            {inside.map((n, i) => (
+              <Node key={n.kicker} n={n} i={outside.length + i} />
             ))}
           </ol>
         </div>

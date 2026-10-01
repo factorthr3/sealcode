@@ -150,9 +150,9 @@ export const PLAYGROUND = {
   defaultModel: 'sealcode-pro' as const,
 } as const;
 
-export const SALES_EMAIL = 'sales@sealcode.ai';
+export const SALES_EMAIL = 'info@sealcode.ai';
 export const SUPPORT_EMAIL = 'support@sealcode.ai';
-export const SECURITY_EMAIL = 'security@sealcode.ai';
+export const SECURITY_EMAIL = 'support@sealcode.ai';
 
 export function planName(plan: PlanId): string {
   return plan === 'trial' ? 'Pilot' : PLANS[plan].name;

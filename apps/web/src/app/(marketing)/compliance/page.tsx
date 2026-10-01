@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SECURITY_EMAIL } from '@sealcode/shared';
 import { Badge, ButtonLink, Card, Table } from '@/components/ui';
-import { SUBPROCESSORS } from '@/lib/content';
+import { subprocessors } from '@/lib/content';
+import { inConfidentialVm } from '@/lib/hosting';
 
 export const metadata: Metadata = {
   title: 'Compliance',
@@ -26,7 +27,8 @@ const ROADMAP = [
   { item: 'ISO/IEC 27001', status: 'Under consideration', tone: 'neutral' },
 ] as const;
 
-export default function CompliancePage() {
+export default async function CompliancePage() {
+  const tee = await inConfidentialVm();
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:py-24">
       <p className="text-sm font-medium text-seal">Compliance</p>
@@ -76,7 +78,7 @@ export default function CompliancePage() {
             </tr>
           </thead>
           <tbody>
-            {SUBPROCESSORS.map((s) => (
+            {subprocessors(tee).map((s) => (
               <tr key={s.name} className="align-top">
                 <td className="font-medium">{s.name}</td>
                 <td className="text-ink-2">{s.purpose}</td>
