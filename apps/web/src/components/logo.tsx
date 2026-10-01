@@ -11,7 +11,7 @@ const SEAL_PATH = (() => {
 })();
 
 /** The Sealcode mark: a wax seal with a pair of brackets pressed into it. */
-export function SealMark({ className = 'size-7' }: { className?: string }) {
+export function SealMark({ className = 'size-[2.45rem]' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <path d={SEAL_PATH} fill="var(--seal)" strokeLinejoin="round" />
@@ -38,9 +38,9 @@ export function SealMark({ className = 'size-7' }: { className?: string }) {
 
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
+    <span className={`inline-flex items-center gap-[0.7rem] ${className}`}>
       <SealMark />
-      <span className="font-display text-[1.65rem] leading-none tracking-tight">Sealcode</span>
+      <span className="font-display text-[2.31rem] leading-none tracking-tight">Sealcode</span>
     </span>
   );
 }
