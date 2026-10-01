@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SECURITY_EMAIL, SUPPORT_EMAIL } from '@sealcode/shared';
-import { SUBPROCESSORS } from '@/lib/content';
+import { subprocessors } from '@/lib/content';
+import { inConfidentialVm } from '@/lib/hosting';
 
 export const metadata: Metadata = { title: 'Privacy policy' };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const tee = await inConfidentialVm();
   return (
     <>
       <h1 className="font-display text-5xl tracking-tight text-ink">Privacy policy</h1>
@@ -30,9 +32,10 @@ export default function PrivacyPage() {
       </ul>
       <h2>What we don&rsquo;t collect</h2>
       <p>
-        We never store the content of your requests: prompts, code and completions are processed
-        inside hardware enclaves and aren&rsquo;t logged or retained. The playground on our homepage
-        works the same way, and our website never sees what you type into it.
+        We never store the content of your requests: prompts, code and completions pass through our
+        gateway to models running inside hardware enclaves, and aren&rsquo;t logged or retained. The
+        playground on our homepage works the same way, and our website never sees what you type into
+        it.
       </p>
       <h2>Why we use it</h2>
       <p>
@@ -43,7 +46,7 @@ export default function PrivacyPage() {
       </p>
       <h2>Who processes it</h2>
       <ul>
-        {SUBPROCESSORS.map((s) => (
+        {subprocessors(tee).map((s) => (
           <li key={s.name}>
             <strong>{s.name}:</strong> {s.purpose.toLowerCase()}.
           </li>

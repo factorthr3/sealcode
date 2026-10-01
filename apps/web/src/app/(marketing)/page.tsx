@@ -6,7 +6,8 @@ import { HowItWorks } from '@/components/how-it-works';
 import { PlaygroundLazy } from '@/components/playground-lazy';
 import { PricingCards } from '@/components/pricing-cards';
 import { ButtonLink } from '@/components/ui';
-import { CAN_SEE, CANNOT_SEE } from '@/lib/content';
+import { canSee, cannotSee } from '@/lib/content';
+import { inConfidentialVm } from '@/lib/hosting';
 import { formatUsd, PLANS } from '@sealcode/shared';
 
 export const metadata: Metadata = {
@@ -15,22 +16,32 @@ export const metadata: Metadata = {
     'Use Claude Code, OpenCode, Cline and Continue with strong open models running inside hardware enclaves. A verifiable receipt for every request, and no prompts stored. Try it live, then talk to us about pricing.',
 };
 
-const PROOF = [
-  ['Intel TDX + NVIDIA', 'confidential computing, end to end'],
-  ['GLM 5.3', 'strong open model, 1M-token context'],
-  ['0 prompts', 'stored or logged by Sealcode'],
-  ['Open source', 'gateway, with published attestation'],
-] as const;
+function proof(tee: boolean) {
+  return [
+    tee
+      ? ['Intel TDX + NVIDIA', 'confidential computing, end to end']
+      : ['NVIDIA GPU TEEs', 'confidential model inference'],
+    ['GLM 5.3', 'strong open model, 1M-token context'],
+    ['0 prompts', 'stored or logged by Sealcode'],
+    tee
+      ? ['Open source', 'gateway, with published attestation']
+      : ['Open source', 'gateway code, public on GitHub'],
+  ] as const;
+}
 
-const PILLARS = [
+const pillars = (tee: boolean) => [
   {
     title: 'Sealed',
-    body: 'Every request is processed inside hardware enclaves: our gateway, Phala’s attested router and the model’s GPU TEE. TLS terminates inside the enclave, not at a proxy in front of it.',
+    body: tee
+      ? 'Every request is processed inside hardware enclaves: our gateway, Phala’s attested router and the model’s GPU TEE. TLS terminates inside the enclave, not at a proxy in front of it.'
+      : 'Inference runs only on GPU enclaves behind Phala’s attested router, with no fallback to an ordinary GPU. Our gateway never logs or stores prompts, and is moving into a Confidential VM.',
     icon: 'M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6l7-3z M9 12l2 2 4-4',
   },
   {
     title: 'Proven',
-    body: 'We publish the attestation for the exact code that handles your requests, and every response carries a signed receipt your admins can verify from the audit log.',
+    body: tee
+      ? 'We publish the attestation for the exact code that handles your requests, and every response carries a signed receipt your admins can verify from the audit log.'
+      : 'Every response carries a receipt signed by Phala’s attested router, which your admins can verify from the audit log. Our gateway’s source is public.',
     icon: 'M6 3h9l3 3v15l-2-1-2 1-2-1-2 1-2-1-2 1V3z M9 8h6 M9 12h6 M9 16h3',
   },
   {
@@ -52,7 +63,7 @@ const SEGMENTS = [
   ],
   [
     'Legal tech',
-    'Privileged client data turns up in code, fixtures and test data. Keep it inside enclaves.',
+    'Privileged client data turns up in code, fixtures and test data. Keep inference inside enclaves.',
   ],
   [
     'Health tech and NHS suppliers',
@@ -126,7 +137,8 @@ function Section({
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const tee = await inConfidentialVm();
   return (
     <>
       {/* Hero */}
@@ -170,7 +182,7 @@ export default function HomePage() {
       {/* Proof strip */}
       <section aria-label="At a glance" className="border-y border-line bg-surface/70 px-4 sm:px-6">
         <dl className="mx-auto grid max-w-6xl grid-cols-2 divide-line lg:grid-cols-4 lg:divide-x">
-          {PROOF.map(([big, small]) => (
+          {proof(tee).map(([big, small]) => (
             <div key={big} className="px-2 py-6 lg:px-6">
               <dt className="font-display text-2xl sm:text-3xl">{big}</dt>
               <dd className="mt-1 text-sm text-muted">{small}</dd>
@@ -242,7 +254,7 @@ export default function HomePage() {
             GPUs to run and no ML ops.
           </p>
           <div className="mt-12">
-            <HowItWorks />
+            <HowItWorks tee={tee} />
           </div>
         </div>
       </section>
@@ -253,7 +265,7 @@ export default function HomePage() {
         title="Policy-based privacy asks you to trust a promise. We give you evidence."
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          {PILLARS.map((p) => (
+          {pillars(tee).map((p) => (
             <div key={p.title} className="rounded-2xl border border-line bg-surface p-6 sm:p-7">
               <svg
                 viewBox="0 0 24 24"
@@ -315,9 +327,19 @@ $ claude`}
         title="What we can see, and what we can’t."
         intro={
           <>
-            Your code is processed inside hardware-isolated enclaves, and we publish proof of the
-            exact code that handles it. We don&rsquo;t claim no one could ever see it. Here&rsquo;s
-            precisely where the line is.
+            {tee ? (
+              <>
+                Your code is processed inside hardware-isolated enclaves, and we publish proof of
+                the exact code that handles it. We don&rsquo;t claim no one could ever see it.
+                Here&rsquo;s precisely where the line is.
+              </>
+            ) : (
+              <>
+                Inference runs inside hardware-isolated GPU enclaves, with a signed receipt for
+                every response. Our own gateway isn&rsquo;t in an enclave yet. Here&rsquo;s
+                precisely where the line is today.
+              </>
+            )}
           </>
         }
       >
@@ -325,7 +347,7 @@ $ claude`}
           <div className="rounded-2xl border border-line bg-surface p-6">
             <h3 className="font-semibold">Sealcode can see</h3>
             <ul className="mt-4 space-y-2.5 text-sm text-ink-2">
-              {CAN_SEE.map((s) => (
+              {canSee(tee).map((s) => (
                 <li key={s} className="flex gap-2">
                   <span aria-hidden className="text-muted">
                     ○
@@ -338,7 +360,7 @@ $ claude`}
           <div className="rounded-2xl border border-verified/30 bg-verified-soft/50 p-6">
             <h3 className="font-semibold">Sealcode can&rsquo;t see</h3>
             <ul className="mt-4 space-y-2.5 text-sm text-ink-2">
-              {CANNOT_SEE.map((s) => (
+              {cannotSee(tee).map((s) => (
                 <li key={s} className="flex gap-2">
                   <span aria-hidden className="text-verified">
                     ●
@@ -422,7 +444,8 @@ $ claude`}
             className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-seal/30 blur-3xl"
           />
           <h2 className="relative max-w-2xl font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl">
-            Your code stays sealed. Your developers stay fast.
+            {tee ? 'Your code stays sealed.' : 'Your code stays private.'} Your developers stay
+            fast.
           </h2>
           <p className="relative mt-4 max-w-xl text-lg text-paper/75">
             Try the playground now, then talk to us about pricing, a pilot with your own code, or a

@@ -282,8 +282,8 @@ export function Playground() {
           <div className="flex h-full flex-col items-center justify-center text-center">
             <p className="font-display text-3xl">Ask it something you&rsquo;d ask at work.</p>
             <p className="mt-2 max-w-md text-sm text-muted">
-              Your question goes from this page straight to our gateway and into a hardware enclave.
-              The answer comes back with a receipt you can check.
+              Your question goes from this page straight to our gateway and on to a model in a
+              hardware enclave. The answer comes back with a receipt you can check.
             </p>
             <div className="mt-6 flex max-w-xl flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((s) => (

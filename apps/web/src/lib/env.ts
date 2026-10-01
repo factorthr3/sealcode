@@ -12,8 +12,8 @@ const schema = z.object({
   PHALA_API_KEY: z.string().default(''),
   UPSTREAM_BASE_URL: z.string().url().optional(),
   RESEND_API_KEY: z.string().default(''),
-  EMAIL_FROM: z.string().default('Sealcode <hello@sealcode.ai>'),
-  SALES_INBOX: z.string().default('sales@sealcode.ai'),
+  EMAIL_FROM: z.string().default('Sealcode <info@sealcode.ai>'),
+  SALES_INBOX: z.string().default('info@sealcode.ai'),
   SOURCE_REPO_URL: z.string().url().default('https://github.com/factorthr3/sealcode'),
   SOURCE_COMMIT: z.string().default('dev'),
 });

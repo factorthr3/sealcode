@@ -66,10 +66,22 @@ export default async function TrustPage() {
         Proof of the exact code that handles your code.
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-ink-2">
-        Sealcode&rsquo;s gateway, dashboard and database run in one Phala Confidential VM on Intel
-        TDX. At boot, the hardware measures the exact container configuration. Anyone can check that
-        measurement against our public source, and a deploy that changed the code would change the
-        hash.
+        {a.mode === 'tee' ? (
+          <>
+            Sealcode&rsquo;s gateway, dashboard and database run in one Phala Confidential VM on
+            Intel TDX. At boot, the hardware measures the exact container configuration. Anyone can
+            check that measurement against our public source, and a deploy that changed the code
+            would change the hash.
+          </>
+        ) : (
+          <>
+            Sealcode&rsquo;s gateway, dashboard and database are moving into one Phala Confidential
+            VM on Intel TDX. There, the hardware measures the exact container configuration at boot,
+            and anyone can check that measurement against our public source. Until the move, they
+            run on standard cloud hosting. Model inference already runs in GPU enclaves, with a
+            signed receipt for every response.
+          </>
+        )}
       </p>
 
       <Card className="mt-12 overflow-hidden">
@@ -79,7 +91,7 @@ export default async function TrustPage() {
             {a.mode === 'tee' ? (
               <Badge tone="verified">● Running in a TEE</Badge>
             ) : (
-              <Badge tone="warn">Development environment</Badge>
+              <Badge tone="warn">Not in a TEE yet</Badge>
             )}
           </div>
           <span className="font-mono text-xs text-muted">{formatDateTime(a.generatedAt)}</span>
@@ -97,10 +109,10 @@ export default async function TrustPage() {
             </dl>
           ) : (
             <div className="py-4">
-              <Callout tone="warn" title="This environment is not running in a TEE">
-                You&rsquo;re looking at a development or staging build, so there is no hardware
-                quote to show. On sealcode.ai this panel shows the live measurement of the
-                production CVM.
+              <Callout tone="warn" title="This deployment is not running in a TEE">
+                It runs on standard cloud hosting (or is a development build), so there is no
+                hardware quote to show. Once Sealcode runs in its Confidential VM, this panel shows
+                the live measurement.
               </Callout>
               <dl className="mt-2">
                 <Row label="Source commit" value={source.commit} />

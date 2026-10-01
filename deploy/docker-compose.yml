@@ -65,8 +65,8 @@ services:
       PUBLIC_GATEWAY_URL: https://api.sealcode.ai
       SOURCE_REPO_URL: https://github.com/factorthr3/sealcode
       SOURCE_COMMIT: *release
-      EMAIL_FROM: Sealcode <hello@sealcode.ai>
-      SALES_INBOX: sales@sealcode.ai
+      EMAIL_FROM: Sealcode <info@sealcode.ai>
+      SALES_INBOX: info@sealcode.ai
       DATABASE_URL: postgres://sealcode:${POSTGRES_PASSWORD}@postgres:5432/sealcode
       PHALA_API_KEY: ${PHALA_API_KEY}
       KEY_PEPPER: ${KEY_PEPPER}

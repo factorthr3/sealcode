@@ -55,8 +55,16 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
 ## Technical
 
 - **Domain is `sealcode.ai`** (1 Oct 2026, @Chris), not the brief's `sealcode.dev`. This covers the
-  site, `api.sealcode.ai`, the CLI's default site, the TLS ingress, and the hello@, sales@,
-  support@ and security@ addresses.
+  site, `api.sealcode.ai`, the CLI's default site and the TLS ingress. There are two mailboxes:
+  `info@` handles sales, enquiries and outgoing mail, and `support@` handles support and security
+  reports.
+- **Interim hosting on Railway** (1 Oct 2026, @Chris). The web app, gateway and Postgres run on
+  Railway at sealcode.ai until the Phala CVM deployment, so the gateway handles prompts outside a
+  TEE. Model inference is still TEE-only, through Phala. The site only claims that our gateway,
+  dashboard or database are in a TEE when `inConfidentialVm()` (`apps/web/src/lib/hosting.ts`)
+  finds the dstack socket. Otherwise the home, security, trust, compliance and privacy pages say
+  plainly what runs where, and list Railway as a subprocessor. Setup is in
+  [deploy/railway.md](../deploy/railway.md).
 - **Phase 0 ran without live access.** No Phala key was available, so the live checks are automated
   but not run. See [spike-report.md](./spike-report.md). The build proceeds against the mock
   upstream on a conditional go.
