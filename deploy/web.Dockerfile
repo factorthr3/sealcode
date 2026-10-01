@@ -15,8 +15,10 @@ RUN pnpm install --frozen-lockfile --filter "@sealcode/web..." --filter "@sealco
 COPY packages packages
 COPY apps/web apps/web
 COPY docs/customer docs/customer
-ARG SOURCE_COMMIT=dev
-ENV SOURCE_COMMIT=${SOURCE_COMMIT} NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
+# Release builds pass SOURCE_COMMIT; Railway's interim builds supply RAILWAY_GIT_COMMIT_SHA.
+ARG SOURCE_COMMIT
+ARG RAILWAY_GIT_COMMIT_SHA
+ENV SOURCE_COMMIT=${SOURCE_COMMIT:-${RAILWAY_GIT_COMMIT_SHA:-dev}} NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
 RUN pnpm --filter @sealcode/web build && pnpm --filter @sealcode/db build:migrate
 
 FROM ${NODE_IMAGE}

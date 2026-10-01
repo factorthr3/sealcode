@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== 'production' && existsSync(rootEnv)) process.loadEn
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Deterministic build IDs, so the same commit produces the same image.
-  generateBuildId: async () => process.env.SOURCE_COMMIT ?? 'dev',
+  generateBuildId: async () => process.env.SOURCE_COMMIT || 'dev',
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: ['@sealcode/shared', '@sealcode/db'],

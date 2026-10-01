@@ -23,11 +23,14 @@ Both app services: `NODE_ENV=production`, `DATABASE_URL=${{Postgres.DATABASE_URL
 `KEY_PEPPER` and `PLAYGROUND_TOKEN_SECRET` as shared variables (they must match in both).
 
 - **web:** `PORT=3000`, `PUBLIC_SITE_URL=https://sealcode.ai`,
-  `PUBLIC_GATEWAY_URL=https://api.sealcode.ai`, `SOURCE_COMMIT=${{RAILWAY_GIT_COMMIT_SHA}}`,
+  `PUBLIC_GATEWAY_URL=https://api.sealcode.ai`,
   `EMAIL_FROM`, `SALES_INBOX`, `TOTP_ENCRYPTION_KEY` (32 random bytes, base64), `PHALA_API_KEY`
   (for receipt lookups) and `RESEND_API_KEY`.
 - **gateway:** `GATEWAY_PORT=8787`, `PORT=8787`, `PUBLIC_SITE_URL=https://sealcode.ai`,
   `PLAYGROUND_ORIGIN=https://sealcode.ai`, `LOG_LEVEL=info` and `PHALA_API_KEY`.
+
+`SOURCE_COMMIT` is not set as a variable: the web Dockerfile takes it from
+`RAILWAY_GIT_COMMIT_SHA` at build time, and an empty value would break Next's build ID.
 
 Secrets were generated locally (`openssl rand`) and piped straight into `railway variables`, so they
 don't appear in logs or in this repo. Rotating `KEY_PEPPER` invalidates every API key, and
