@@ -7,9 +7,9 @@ deployed from a release tag, with every image pinned by digest.
 ## What you need
 
 - A Phala Cloud account and the CLI: `npm i -g phala` then `phala auth login`.
-- The `sealcode.dev` zone on Cloudflare, and an API token scoped to **Zone:DNS:Edit** for it.
+- The `sealcode.ai` zone on Cloudflare, and an API token scoped to **Zone:DNS:Edit** for it.
 - A Phala Confidential AI API key (the gateway's upstream credential).
-- A Resend account with `sealcode.dev` verified, for transactional email.
+- A Resend account with `sealcode.ai` verified, for transactional email.
 - Optionally, an S3-compatible bucket for off-site backup copies.
 
 ## 1. Cut a release
@@ -58,11 +58,11 @@ Then add Phala Trust Center listing (`--listed`) once the first deploy is verifi
 
 `dstack-ingress` creates the DNS records it needs and requests Let's Encrypt certificates by
 DNS-01, with private keys generated inside the TEE. It also sets CAA records so that only its
-ACME account can issue for `sealcode.dev`. Check:
+ACME account can issue for `sealcode.ai`. Check:
 
 ```bash
-curl -sI https://api.sealcode.dev/healthz
-curl -s https://sealcode.dev/evidences/ | head
+curl -sI https://api.sealcode.ai/healthz
+curl -s https://sealcode.ai/evidences/ | head
 ```
 
 ## 5. After the first deploy
@@ -70,15 +70,15 @@ curl -s https://sealcode.dev/evidences/ | head
 Verify the deployment the way a customer would:
 
 ```bash
-npx tsx scripts/verify-attestation.ts --site https://sealcode.dev --ref v1.0.0
+npx tsx scripts/verify-attestation.ts --site https://sealcode.ai --ref v1.0.0
 ```
 
-Then create the first staff account. Sign in once at `https://sealcode.dev/login` so the user
+Then create the first staff account. Sign in once at `https://sealcode.ai/login` so the user
 exists, then run the grant against the production database over the CVM's SSH tunnel:
 
 ```bash
 DATABASE_URL=postgres://sealcode:…@localhost:5432/sealcode \
-  pnpm --filter @sealcode/db staff:grant you@sealcode.dev
+  pnpm --filter @sealcode/db staff:grant you@sealcode.ai
 ```
 
 Staff access is never exposed in the UI.

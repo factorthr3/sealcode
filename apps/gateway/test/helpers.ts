@@ -71,7 +71,7 @@ export function setup(
     keyPepper: PEPPER,
     playgroundSecret: PLAYGROUND_SECRET,
     playgroundOrigin: SITE_ORIGIN,
-    siteUrl: 'https://sealcode.dev',
+    siteUrl: 'https://sealcode.ai',
     ...opts.config,
   };
   const app = createGateway({ store, logger, config, fetch: upstreamFetch, now: () => clock });

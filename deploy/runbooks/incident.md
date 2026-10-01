@@ -11,7 +11,7 @@
 ## First 15 minutes
 
 1. **Acknowledge** the alert and open an incident channel. Name one incident lead.
-2. **Check health.** Run `curl -s https://api.sealcode.dev/healthz`, `curl -sI https://sealcode.dev/api/health`,
+2. **Check health.** Run `curl -s https://api.sealcode.ai/healthz`, `curl -sI https://sealcode.ai/api/health`,
    and `phala cvms logs sealcode --service gateway`. Logs are metadata only.
 3. **Check upstream.** Phala status, and whether gateway logs show `upstream.unreachable` or a spike
    in 5xx `error_type`.

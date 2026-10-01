@@ -15,7 +15,7 @@ export default async function ConnectPage({ searchParams }: PageProps<'/app/conn
   const { role } = await requireOrg();
   const { PUBLIC_GATEWAY_URL: gateway, PUBLIC_SITE_URL: site } = env();
   const loginCommand =
-    site === 'https://sealcode.dev' ? 'npx sealcode login' : `npx sealcode login --site ${site}`;
+    site === 'https://sealcode.ai' ? 'npx sealcode login' : `npx sealcode login --site ${site}`;
   const snippet = JSON.stringify({ env: claudeCodeEnv(gateway, 'sc_live_…') }, null, 2);
 
   return (

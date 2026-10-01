@@ -46,7 +46,7 @@ export default async function SettingsPage() {
             </div>
           </dl>
           <p className="mt-4 text-xs text-muted">
-            Lost your authenticator? Email support@sealcode.dev from this address to reset it.
+            Lost your authenticator? Email support@sealcode.ai from this address to reset it.
           </p>
         </Card>
         {can(role, 'org.settings') && org ? (

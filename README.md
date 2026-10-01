@@ -51,16 +51,16 @@ node packages/cli/dist/cli.js login --site http://localhost:3000
 
 ## Tests and checks
 
-| Task                                          | Command                                                                         |
-| --------------------------------------------- | ------------------------------------------------------------------------------- |
-| Everything (mock upstream, no live keys)      | `pnpm test`                                                                     |
-| Lint, types, format                           | `pnpm lint`, `pnpm typecheck`, `pnpm format`                                    |
-| Gateway added latency (50 concurrent streams) | `pnpm bench`                                                                    |
-| Phase 0 compatibility checks against Phala    | `PHALA_API_KEY=… pnpm spike`                                                    |
-| Claude Code end to end                        | `scripts/spike/claude-code-e2e.sh phala` or `gateway`                           |
-| Soak test                                     | `SOAK_KEY=… SOAK_MINUTES=1440 pnpm soak`                                        |
-| Backup restore drill                          | `pnpm backup:drill`                                                             |
-| Verify a deployment's attestation             | `npx tsx scripts/verify-attestation.ts --site https://sealcode.dev --ref <tag>` |
+| Task                                          | Command                                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------------------ |
+| Everything (mock upstream, no live keys)      | `pnpm test`                                                                    |
+| Lint, types, format                           | `pnpm lint`, `pnpm typecheck`, `pnpm format`                                   |
+| Gateway added latency (50 concurrent streams) | `pnpm bench`                                                                   |
+| Phase 0 compatibility checks against Phala    | `PHALA_API_KEY=… pnpm spike`                                                   |
+| Claude Code end to end                        | `scripts/spike/claude-code-e2e.sh phala` or `gateway`                          |
+| Soak test                                     | `SOAK_KEY=… SOAK_MINUTES=1440 pnpm soak`                                       |
+| Backup restore drill                          | `pnpm backup:drill`                                                            |
+| Verify a deployment's attestation             | `npx tsx scripts/verify-attestation.ts --site https://sealcode.ai --ref <tag>` |
 
 ## Deploying
 

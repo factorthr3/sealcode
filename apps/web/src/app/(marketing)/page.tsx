@@ -298,10 +298,10 @@ export default function HomePage() {
             label="Terminal"
             code={`$ npx sealcode login
   Your one-time code: BCDF-GHJK
-  Approve it at https://sealcode.dev/device
+  Approve it at https://sealcode.ai/device
 
 ✓ Signed in as priya@acme-pay.co.uk (Acme Payments)
-✓ Claude Code now uses api.sealcode.dev
+✓ Claude Code now uses api.sealcode.ai
 ✓ Settings merged; original backed up
 
 $ claude`}
