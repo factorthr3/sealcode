@@ -58,7 +58,7 @@ export const DEFAULT_CONFIG: Omit<
 > = {
   playgroundSecret: null,
   playgroundOrigin: null,
-  siteUrl: 'https://sealcode.dev',
+  siteUrl: 'https://sealcode.ai',
   maxBodyBytes: 32 * 1024 * 1024,
   keyCacheMs: 3_000,
   usageCacheMs: 2_000,

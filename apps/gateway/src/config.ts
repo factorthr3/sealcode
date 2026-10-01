@@ -17,7 +17,7 @@ const env = z.object({
   KEY_PEPPER: z.string().min(32, 'KEY_PEPPER must be at least 32 characters'),
   PLAYGROUND_TOKEN_SECRET: z.string().min(32).optional(),
   PLAYGROUND_ORIGIN: z.string().optional(),
-  PUBLIC_SITE_URL: z.string().url().default('https://sealcode.dev'),
+  PUBLIC_SITE_URL: z.string().url().default('https://sealcode.ai'),
   DATABASE_URL: z.string().optional(),
   LOG_LEVEL: z.string().optional(),
   DEV_API_KEY: z.string().optional(),

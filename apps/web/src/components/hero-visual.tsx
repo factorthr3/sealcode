@@ -4,7 +4,7 @@ const LINES: { text: string; tone?: 'prompt' | 'ok' | 'dim' | 'tool'; gap?: bool
   { text: '~/acme-payments $ npx sealcode login', tone: 'prompt' },
   { text: '  code BCDF-GHJK · approved in your browser', tone: 'dim' },
   { text: '✓ Signed in as priya@acme-pay.co.uk (Acme Payments)', tone: 'ok' },
-  { text: '✓ Claude Code now uses api.sealcode.dev', tone: 'ok' },
+  { text: '✓ Claude Code now uses api.sealcode.ai', tone: 'ok' },
   { text: '~/acme-payments $ claude', tone: 'prompt', gap: true },
   { text: '> Fix the rounding bug in settlement.ts and run the tests' },
   { text: '⏺ Read(src/settlement.ts)', tone: 'tool' },

@@ -6,7 +6,7 @@ order: 2
 
 # OpenCode quickstart
 
-OpenCode talks to Sealcode's OpenAI-compatible endpoint, `https://api.sealcode.dev/v1`.
+OpenCode talks to Sealcode's OpenAI-compatible endpoint, `https://api.sealcode.ai/v1`.
 
 ## 1. Create a key
 
@@ -30,7 +30,7 @@ coming from the environment as shown):
       "npm": "@ai-sdk/openai-compatible",
       "name": "Sealcode",
       "options": {
-        "baseURL": "https://api.sealcode.dev/v1",
+        "baseURL": "https://api.sealcode.ai/v1",
         "apiKey": "{env:SEALCODE_API_KEY}"
       },
       "models": {

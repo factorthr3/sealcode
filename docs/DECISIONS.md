@@ -54,6 +54,9 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
 
 ## Technical
 
+- **Domain is `sealcode.ai`** (1 Oct 2026, @Chris), not the brief's `sealcode.dev`. This covers the
+  site, `api.sealcode.ai`, the CLI's default site, the TLS ingress, and the hello@, sales@,
+  support@ and security@ addresses.
 - **Phase 0 ran without live access.** No Phala key was available, so the live checks are automated
   but not run. See [spike-report.md](./spike-report.md). The build proceeds against the mock
   upstream on a conditional go.

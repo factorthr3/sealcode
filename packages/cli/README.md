@@ -1,6 +1,6 @@
 # sealcode
 
-Connect [Claude Code](https://code.claude.com) to [Sealcode](https://sealcode.dev), the
+Connect [Claude Code](https://code.claude.com) to [Sealcode](https://sealcode.ai), the
 confidential AI coding gateway, in one command.
 
 ```bash

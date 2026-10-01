@@ -15,7 +15,7 @@ import {
   type Json,
 } from './settings';
 
-export const DEFAULT_SITE = 'https://sealcode.dev';
+export const DEFAULT_SITE = 'https://sealcode.ai';
 
 /** Everything the commands touch outside the file system, injectable for tests. */
 export interface Io {

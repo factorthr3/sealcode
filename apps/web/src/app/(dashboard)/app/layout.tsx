@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: LayoutProps<'/app'>)
   } else if (full?.status === 'suspended') {
     trialBanner = (
       <div className="border-b border-danger/20 bg-danger-soft px-4 py-2 text-center text-sm text-danger">
-        This organisation is suspended. API requests are refused. Contact support@sealcode.dev.
+        This organisation is suspended. API requests are refused. Contact support@sealcode.ai.
       </div>
     );
   }

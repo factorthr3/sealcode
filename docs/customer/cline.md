@@ -10,12 +10,12 @@ order: 3
 2. In VS Code, open Cline's settings (the gear icon in the Cline panel).
 3. Set:
 
-| Setting      | Value                         |
-| ------------ | ----------------------------- |
-| API Provider | OpenAI Compatible             |
-| Base URL     | `https://api.sealcode.dev/v1` |
-| API Key      | your `sc_live_…` key          |
-| Model ID     | `sealcode-pro`                |
+| Setting      | Value                        |
+| ------------ | ---------------------------- |
+| API Provider | OpenAI Compatible            |
+| Base URL     | `https://api.sealcode.ai/v1` |
+| API Key      | your `sc_live_…` key         |
+| Model ID     | `sealcode-pro`               |
 
 4. Save, then ask Cline to do something small, such as explaining a function, to confirm the
    connection. The request appears in your audit log.

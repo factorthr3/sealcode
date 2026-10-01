@@ -2,7 +2,7 @@
  * Grant (or with --revoke, remove) Sealcode staff access. Staff can see every org, activate plans
  * and read enquiries, so this is deliberately a command run by an operator, never a UI action.
  *
- *   pnpm --filter @sealcode/db staff:grant you@sealcode.dev [--revoke]
+ *   pnpm --filter @sealcode/db staff:grant you@sealcode.ai [--revoke]
  */
 import { existsSync } from 'node:fs';
 import { createDb } from './client';

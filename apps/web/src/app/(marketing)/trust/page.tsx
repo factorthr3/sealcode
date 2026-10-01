@@ -99,7 +99,7 @@ export default async function TrustPage() {
             <div className="py-4">
               <Callout tone="warn" title="This environment is not running in a TEE">
                 You&rsquo;re looking at a development or staging build, so there is no hardware
-                quote to show. On sealcode.dev this panel shows the live measurement of the
+                quote to show. On sealcode.ai this panel shows the live measurement of the
                 production CVM.
               </Callout>
               <dl className="mt-2">
@@ -140,7 +140,7 @@ export default async function TrustPage() {
 git checkout ${source.commit}
 pnpm install
 npx tsx scripts/verify-attestation.ts \\
-  --site https://sealcode.dev --ref ${source.commit}`}
+  --site https://sealcode.ai --ref ${source.commit}`}
           />
           <ol className="space-y-4">
             {CHECKS.map(([title, body], i) => (

@@ -6,7 +6,7 @@ order: 6
 
 # API reference
 
-Base URL: `https://api.sealcode.dev`
+Base URL: `https://api.sealcode.ai`
 
 ## Authentication
 

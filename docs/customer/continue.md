@@ -20,13 +20,13 @@ models:
   - name: Sealcode Pro
     provider: openai
     model: sealcode-pro
-    apiBase: https://api.sealcode.dev/v1
+    apiBase: https://api.sealcode.ai/v1
     apiKey: ${{ secrets.SEALCODE_API_KEY }}
     roles: [chat, edit, apply]
   - name: Sealcode Fast
     provider: openai
     model: sealcode-fast
-    apiBase: https://api.sealcode.dev/v1
+    apiBase: https://api.sealcode.ai/v1
     apiKey: ${{ secrets.SEALCODE_API_KEY }}
     roles: [chat, edit]
 ```

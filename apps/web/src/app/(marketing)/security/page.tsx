@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 const PATH = [
   [
-    'Claude Code sends the request to api.sealcode.dev',
+    'Claude Code sends the request to api.sealcode.ai',
     'TLS terminates inside our Confidential VM, not at a proxy in front of it. The certificate’s private key is generated inside the TEE.',
   ],
   [

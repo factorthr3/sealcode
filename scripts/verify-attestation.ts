@@ -1,7 +1,7 @@
 /**
- * Verify that sealcode.dev runs the published code inside a TEE.
+ * Verify that sealcode.ai runs the published code inside a TEE.
  *
- *   npx tsx scripts/verify-attestation.ts --site https://sealcode.dev --ref v1.0.0
+ *   npx tsx scripts/verify-attestation.ts --site https://sealcode.ai --ref v1.0.0
  *   npx tsx scripts/verify-attestation.ts --compose ./deploy/docker-compose.yml --offline
  *
  * 1. Sends a random nonce and gets a fresh TDX quote committing to it.
@@ -20,7 +20,7 @@ function arg(name: string): string | undefined {
   return i >= 0 ? process.argv[i + 1] : undefined;
 }
 
-const site = (arg('--site') ?? 'https://sealcode.dev').replace(/\/+$/, '');
+const site = (arg('--site') ?? 'https://sealcode.ai').replace(/\/+$/, '');
 const ref = arg('--ref');
 const composePath = arg('--compose');
 const offline = process.argv.includes('--offline');
