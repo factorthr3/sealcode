@@ -142,6 +142,7 @@ export default function HomePage() {
               Confidential AI coding, with receipts
             </p>
             <h1 className="mt-6 font-display text-[3.2rem] leading-[0.98] tracking-tight sm:text-7xl">
+              <strong className="block font-bold text-seal">Privacy.</strong>
               AI coding for teams that can&rsquo;t send code to the cloud.
             </h1>
             <p className="mt-6 max-w-xl text-lg text-ink-2 sm:text-xl">
