@@ -1,11 +1,11 @@
 import type { CSSProperties } from 'react';
 
 const LINES: { text: string; tone?: 'prompt' | 'ok' | 'dim' | 'tool'; gap?: boolean }[] = [
-  { text: '~/acme-payments $ npx sealcode login', tone: 'prompt' },
+  { text: '~/payments-api $ npx sealcode login', tone: 'prompt' },
   { text: '  code BCDF-GHJK · approved in your browser', tone: 'dim' },
-  { text: '✓ Signed in as priya@acme-pay.co.uk (Acme Payments)', tone: 'ok' },
+  { text: '✓ Signed in as priya@example.com (Example Fintech)', tone: 'ok' },
   { text: '✓ Claude Code now uses api.sealcode.ai', tone: 'ok' },
-  { text: '~/acme-payments $ claude', tone: 'prompt', gap: true },
+  { text: '~/payments-api $ claude', tone: 'prompt', gap: true },
   { text: '> Fix the rounding bug in settlement.ts and run the tests' },
   { text: '⏺ Read(src/settlement.ts)', tone: 'tool' },
   { text: '⏺ Update(src/settlement.ts)  +4 −2', tone: 'tool' },
@@ -30,7 +30,7 @@ export function HeroVisual() {
           <span className="size-2.5 rounded-full bg-white/20" />
           <span className="size-2.5 rounded-full bg-white/20" />
           <span className="size-2.5 rounded-full bg-white/20" />
-          <span className="ml-3 font-mono text-[11px] text-code-muted">zsh: acme-payments</span>
+          <span className="ml-3 font-mono text-[11px] text-code-muted">zsh: payments-api</span>
         </div>
         <div className="space-y-1 px-4 py-4 font-mono text-[12px] leading-relaxed sm:text-[12.5px]">
           {LINES.map((l, i) => (
