@@ -312,7 +312,7 @@ export default async function HomePage() {
   Your one-time code: BCDF-GHJK
   Approve it at https://sealcode.ai/device
 
-✓ Signed in as priya@acme-pay.co.uk (Acme Payments)
+✓ Signed in as priya@example.com (Example Fintech)
 ✓ Claude Code now uses api.sealcode.ai
 ✓ Settings merged; original backed up
 
