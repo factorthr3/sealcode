@@ -149,10 +149,10 @@ export default async function TrustPage() {
           <CodeBlock
             label="Terminal"
             code={`git clone ${source.repo}.git && cd sealcode
-git checkout ${source.commit}
+git checkout ${source.ref}
 pnpm install
 npx tsx scripts/verify-attestation.ts \\
-  --site https://sealcode.ai --ref ${source.commit}`}
+  --site https://sealcode.ai --ref ${source.ref}`}
           />
           <ol className="space-y-4">
             {CHECKS.map(([title, body], i) => (
