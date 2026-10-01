@@ -15,7 +15,7 @@ deploys from `main` of `factorthr3/sealcode`.
 | ---------- | --------------------------- | ----------------- | ---- | -------------------------------------------------------------------------- |
 | `web`      | `deploy/web.Dockerfile`     | `sealcode.ai`     | 3000 | Pre-deploy runs migrations (`node tools/migrate.js`); health `/api/health` |
 | `gateway`  | `deploy/gateway.Dockerfile` | `api.sealcode.ai` | 8787 | Health `/healthz`                                                          |
-| `Postgres` | Railway Postgres template   | private only      |      | Daily backups are Railway's; see below                                     |
+| `Postgres` | Railway Postgres template   | private only      |      | Not backed up yet: enable Railway backups, or `pg_dump` it                 |
 
 ## Variables
 
