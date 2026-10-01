@@ -25,12 +25,7 @@ const emailSchema = z.string().trim().toLowerCase().email().max(254);
 export async function requestMagicLink(_prev: FormState, form: FormData): Promise<FormState> {
   const email = emailSchema.safeParse(form.get('email'));
   if (!email.success) return { error: 'Enter a valid work email address.' };
-  const company = String(form.get('company') ?? '')
-    .trim()
-    .slice(0, 120);
-  const next = company
-    ? `/onboarding?name=${encodeURIComponent(company)}`
-    : safeNext(form.get('next'));
+  const next = safeNext(form.get('next'));
 
   const ip = (await clientKey()) ?? 'shared';
   if (
@@ -96,26 +91,6 @@ export async function verifyTwoFactor(_prev: FormState, form: FormData): Promise
   if (!s.user.totpEnabledAt) await acc().enableTotp(s.user.id);
   await acc().markSessionMfa(s.token);
   redirect(safeNext(form.get('next')));
-}
-
-const orgSchema = z.string().trim().min(2, 'Enter your company or team name.').max(120);
-
-export async function createOrganisation(_prev: FormState, form: FormData): Promise<FormState> {
-  const s = await getSession();
-  if (!s) redirect('/login?next=/onboarding');
-  const name = orgSchema.safeParse(form.get('name'));
-  if (!name.success) return { error: name.error.issues[0]?.message ?? 'Enter a name.' };
-  if (s.orgs.filter((o) => o.role === 'owner').length >= 3) {
-    return { error: 'You already own three organisations. Contact us if you need more.' };
-  }
-  const org = await acc().createOrgWithOwner({ name: name.data, ownerId: s.user.id });
-  await acc().setSessionOrg(s.token, org.id);
-  // Owners must use two-factor login: set it up before the dashboard.
-  redirect(
-    s.user.totpEnabledAt
-      ? '/app/connect?welcome=1'
-      : '/auth/2fa?next=%2Fapp%2Fconnect%3Fwelcome%3D1',
-  );
 }
 
 export async function acceptInvitation(token: string): Promise<void> {

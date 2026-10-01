@@ -36,8 +36,8 @@ export default async function BudgetsPage() {
       />
       {trial ? (
         <div className="mb-6">
-          <Callout tone="warn" title="Trial">
-            Trials stop at the {allowance ? formatTokens(allowance) : ''} token allowance whatever
+          <Callout tone="warn" title="Pilot">
+            Pilots stop at the {allowance ? formatTokens(allowance) : ''} token allowance whatever
             mode you choose. You can set lower caps here.
           </Callout>
         </div>

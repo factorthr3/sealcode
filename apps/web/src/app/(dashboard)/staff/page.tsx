@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { formatTokens, planName, PLAYGROUND } from '@sealcode/shared';
+import { formatTokens, PAID_PLAN_IDS, planName, PLANS, PLAYGROUND, TRIAL } from '@sealcode/shared';
+import { ActionForm } from '@/components/action-form';
 import { SubmitButton } from '@/components/form-controls';
-import { Badge, Empty, inputClass, PageHeader, Stat, Table } from '@/components/ui';
+import { Badge, Card, Empty, Field, inputClass, PageHeader, Stat, Table } from '@/components/ui';
 import { acc } from '@/lib/db';
 import { currentPeriod, daysLeft, formatDate, formatDateTime } from '@/lib/format';
-import { setEnquiryStatus } from './actions';
+import { createCustomerOrg, setEnquiryStatus } from './actions';
 
 export const metadata: Metadata = { title: 'Staff console' };
 
@@ -26,13 +27,13 @@ export default async function StaffHome() {
     <>
       <PageHeader
         title="Staff console"
-        description="Enquiries, trials and activations. Activation records the agreement and lifts trial limits immediately."
+        description="Enquiries, customer organisations and pilots. Sealcode is sales-led: organisations are created here once terms are agreed."
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="New enquiries" value={open.length} />
         <Stat label="Active orgs" value={orgs.filter((o) => o.status === 'active').length} />
         <Stat
-          label="Trials"
+          label="Pilots"
           value={trials.length}
           hint={`${endingSoon.length} ending within 3 days`}
         />
@@ -44,6 +45,82 @@ export default async function StaffHome() {
           hint={`of ${formatTokens(PLAYGROUND.dailyTokenCap)} daily cap`}
         />
       </div>
+
+      <Card className="mt-10 p-6">
+        <h2 className="text-lg font-semibold">New customer organisation</h2>
+        <p className="mt-1 text-sm text-muted">
+          Creates the organisation on the agreed plan, or as a time-limited pilot, and emails its
+          first owner an invitation.
+        </p>
+        <div className="mt-5">
+          <ActionForm
+            action={createCustomerOrg}
+            submitLabel="Create and invite owner"
+            pendingLabel="Creating…"
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Field label="Organisation name">
+                <input name="name" required minLength={2} maxLength={120} className={inputClass} />
+              </Field>
+              <Field label="Owner email">
+                <input name="ownerEmail" type="email" required className={inputClass} />
+              </Field>
+              <Field label="Terms">
+                <select name="terms" defaultValue="team" className={inputClass}>
+                  {PAID_PLAN_IDS.map((id) => (
+                    <option key={id} value={id}>
+                      {PLANS[id].name}
+                    </option>
+                  ))}
+                  <option value="pilot">Pilot (free, time-limited)</option>
+                </select>
+              </Field>
+              <Field label="Seats" hint="Ignored for pilots.">
+                <input
+                  name="seats"
+                  type="number"
+                  min={1}
+                  defaultValue={10}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Billing">
+                <select name="interval" defaultValue="monthly" className={inputClass}>
+                  <option value="monthly">Monthly</option>
+                  <option value="annual">Annual</option>
+                </select>
+              </Field>
+              <Field label="Starts" hint="Paid plans only.">
+                <input
+                  name="startsOn"
+                  type="date"
+                  defaultValue={new Date().toISOString().slice(0, 10)}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+              <Field
+                label="Pilot length (days)"
+                hint={`Pilots include ${TRIAL.maxSeats} seats and ${formatTokens(TRIAL.pooledTokens)} tokens.`}
+              >
+                <input
+                  name="pilotDays"
+                  type="number"
+                  min={1}
+                  max={180}
+                  defaultValue={30}
+                  className={inputClass}
+                />
+              </Field>
+              <div className="md:col-span-2">
+                <Field label="Notes" hint="Agreed price, PO number, contract reference.">
+                  <input name="notes" maxLength={2000} className={inputClass} />
+                </Field>
+              </div>
+            </div>
+          </ActionForm>
+        </div>
+      </Card>
 
       <h2 className="mt-10 mb-3 text-lg font-semibold">Enquiries</h2>
       {enquiries.length === 0 ? (
@@ -139,7 +216,9 @@ export default async function StaffHome() {
                 <span className="block font-mono text-xs text-muted">{o.slug}</span>
               </td>
               <td>
-                <Badge tone={STATUS_TONE[o.status]}>{o.status}</Badge>
+                <Badge tone={STATUS_TONE[o.status]}>
+                  {o.status === 'trial' ? 'pilot' : o.status}
+                </Badge>
                 {o.status === 'trial' ? (
                   <span className="ml-2 text-xs text-muted">{daysLeft(o.trialEndsAt)} d left</span>
                 ) : null}

@@ -9,16 +9,11 @@ each section.
 
 Billing does not go through Stripe for now. Milestone 4 changes as follows:
 
-- **Self-serve trial.** Signing up creates an org on a free trial: 14 days, up to 6 seats (the owner plus five teammates) and 20M
-  pooled tokens, which is one Team seat's allowance. No card is taken. The values live in
-  `TRIAL` in `packages/shared/src/plans.ts`.
 - **Activation by contact.** The pricing page, the dashboard's Billing page and the gateway's
-  trial-ended errors all point to `/contact`. There the customer picks a plan, seat count and
-  interval, and the enquiry is stored and emailed to sales.
-- **Staff console.** Sealcode staff activate an org at `/staff` by setting its plan, seats, interval
-  and term. Each activation is written to `subscriptions` as the record of the commercial
-  agreement. Staff are users with `is_staff`, granted only by the `staff:grant` script, and must use
-  two-factor login.
+  pilot-ended errors all point to `/contact`. The enquiry is stored and emailed to sales.
+- **Staff console.** Sealcode staff manage organisations at `/staff`. Each agreement is written to
+  `subscriptions` as the record of the commercial terms. Staff are users with `is_staff`, granted
+  only by the `staff:grant` script, and must use two-factor login.
 - **Invoicing is manual.** The dashboard shows a live monthly statement (seat fees, pooled
   allowance, overage) computed by `monthlyStatement()` from `usage_events`. Staff export the same
   statement as CSV to invoice from. The overage formula is documented in `pricing.ts` and
@@ -27,6 +22,25 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
 - Stripe can be added later behind the same plan config. Nothing in the schema assumes manual
   billing beyond `subscriptions.source = 'manual'`.
 
+### Sales-led: no free trial (1 Oct 2026, @Chris)
+
+- **No self-serve trial or sign-up.** `/signup` redirects to the contact form, and signed-in users
+  can't create organisations. The CTAs read "Contact sales" or "Get Team" and the like, all going
+  to `/contact`.
+- **Staff create customer organisations** from the staff console once terms are agreed, on a paid
+  plan or as a time-limited **pilot**. Either way the customer's first owner gets an email
+  invitation. Pilots are the brief's design-partner pilots. Internally they still use the `trial`
+  plan and status, with the `TRIAL` terms in `plans.ts` (6 seats, 20M tokens) and a length set by
+  staff. The UI calls them pilots.
+- **One allowance per pilot.** A pilot's token allowance covers its whole length; it doesn't reset
+  on the 1st of the month. Pilot budget alerts fire once per pilot. Paid plans keep monthly budgets.
+- **Prices.** Team ($59) and Business ($99) per-seat prices, token allowances and overage rates are
+  published (`SHOW_PUBLIC_PRICES = true`). **Enterprise has no list price**: it is agreed with each
+  customer (`platformFeeMonthly: null`). For Enterprise orgs, the billing page and statement CSV
+  show usage and say charges are per the agreement, instead of computing a figure.
+- The self-serve trial and its abuse controls (work email only, one trial per company domain) were
+  built and then removed in favour of this model.
+
 ### Try before you buy (30 Sept 2026, @Chris)
 
 - **Live playground on the landing page.** Anonymous visitors can send coding prompts to
@@ -34,9 +48,9 @@ Billing does not go through Stripe for now. Milestone 4 changes as follows:
   a short-lived signed playground token (`sc_demo_…`, 15 minutes, 12 requests). **The browser then
   calls the gateway directly**, so the web app never sees prompt content, as the brief requires.
   The gateway caps output tokens, request size, per-token rate and a global daily token budget
-  (`PLAYGROUND` in `plans.ts`). Tools are refused on playground tokens.
-- **Self-serve trial** as above, so a team can run the real Claude Code flow before talking to
-  sales.
+  (`PLAYGROUND` in `plans.ts`). Tools are refused on playground tokens. With no free trial, this is
+  the only way to try Sealcode without talking to us. At current Phala prices the daily cap costs
+  at most about $9–13 a day.
 
 ## Technical
 

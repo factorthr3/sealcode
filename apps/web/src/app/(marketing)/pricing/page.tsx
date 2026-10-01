@@ -1,37 +1,35 @@
 import type { Metadata } from 'next';
-import {
-  formatTokens,
-  formatUsd,
-  MODEL_ALIASES,
-  OVERAGE_PER_MTOK,
-  SALES_EMAIL,
-  TRIAL,
-} from '@sealcode/shared';
+import Link from 'next/link';
+import { formatUsd, MODEL_ALIASES, OVERAGE_PER_MTOK, SALES_EMAIL } from '@sealcode/shared';
 import { PricingCards } from '@/components/pricing-cards';
 import { ButtonLink, Table } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: 'Pricing',
   description:
-    'Per-seat plans with a pooled token allowance and published overage rates. Start with a free 14-day trial; we invoice you directly.',
+    'Team and Business are priced per seat with a pooled token allowance and published overage rates; Enterprise is priced with you. Contact us to get started; we invoice you directly.',
 };
 
 const FAQ = [
+  [
+    'How do we buy Sealcode?',
+    `Contact us with your plan and seat count. We send an order form and an invoice, set up your organisation and invite your admins. We don’t take cards online. UK VAT is added where it applies. Email ${SALES_EMAIL} with procurement requirements.`,
+  ],
+  [
+    'How is Enterprise priced?',
+    'Individually: a platform fee and seats agreed for your organisation’s size, with a dedicated CVM, custom domain, SLA and security review support. Talk to us and we’ll put together a proposal.',
+  ],
+  [
+    'Can we try it before we buy?',
+    'Yes. The playground on our homepage runs on the real confidential stack, with no sign-up. For a hands-on evaluation with your own repositories, we set up time-limited pilots for design partners.',
+  ],
   [
     'What counts towards the allowance?',
     'Every token a request uses: input (including prompt-cache reads and writes) and output. The allowance is pooled across your organisation for the calendar month (UTC), so a heavy user and a light user share it.',
   ],
   [
-    'What happens when we go over?',
+    'What happens if we use more than our allowance?',
     'By default your admins get emails at 50%, 80% and 100%, and usage continues at the overage rates below. Prefer a ceiling? Switch budgets to hard stop: requests are refused with a clear message in Claude Code until next month or until an admin raises the cap. You can also cap individual seats.',
-  ],
-  [
-    'How do we pay?',
-    `We don’t take cards online yet. Contact us and we’ll send an order form and an invoice. UK VAT is added where it applies. Email ${SALES_EMAIL} with procurement requirements.`,
-  ],
-  [
-    'What happens when the trial ends?',
-    'Requests stop until you activate a plan, but your organisation, members, keys and audit log stay in place. Activation switches the same organisation to its plan with no reconfiguration.',
   ],
   [
     'Can we see what we’ll be billed?',
@@ -54,13 +52,17 @@ export default function PricingPage() {
 
         <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-2xl border border-seal/30 bg-seal-soft px-6 py-5 sm:flex-row sm:items-center">
           <div>
-            <p className="font-semibold">Free {TRIAL.days}-day trial</p>
+            <p className="font-semibold">Ready to start?</p>
             <p className="text-sm text-ink-2">
-              {TRIAL.maxSeats} seats, {formatTokens(TRIAL.pooledTokens)} tokens, every feature. No
-              card, no sales call.
+              Tell us your plan and seats; we&rsquo;ll send an order form, usually within one
+              working day. Want to see it first?{' '}
+              <Link href="/#playground" className="underline underline-offset-2">
+                Try the playground
+              </Link>
+              .
             </p>
           </div>
-          <ButtonLink href="/signup">Start free trial</ButtonLink>
+          <ButtonLink href="/contact?reason=pricing">Contact sales</ButtonLink>
         </div>
 
         <h2 className="sr-only">Plans</h2>
@@ -72,7 +74,8 @@ export default function PricingPage() {
           <section>
             <h2 className="font-display text-3xl">Overage rates</h2>
             <p className="mt-2 text-sm text-muted">
-              Per 1M tokens beyond your pooled monthly allowance, on any model.
+              Team and Business, per 1M tokens beyond your pooled monthly allowance, on any model.
+              Enterprise rates are set in your agreement.
             </p>
             <div className="mt-5">
               <Table>
@@ -139,7 +142,7 @@ export default function PricingPage() {
         </div>
 
         <section className="mt-20">
-          <h2 className="font-display text-3xl">Billing questions</h2>
+          <h2 className="font-display text-3xl">Pricing questions</h2>
           <div className="mt-6 divide-y divide-line rounded-2xl border border-line bg-surface">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group px-5 py-4 sm:px-6">

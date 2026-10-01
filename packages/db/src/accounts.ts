@@ -102,7 +102,7 @@ export function accounts(db: Db) {
     },
 
     // --- orgs --------------------------------------------------------------------------------
-    /** A new org starts on the self-serve trial with its creator as owner. */
+    /** An org on pilot (trial) terms with an existing user as owner. Used by the seed and tests. */
     async createOrgWithOwner(input: { name: string; ownerId: string }) {
       return db.transaction(async (tx) => {
         const [org] = await tx
@@ -449,6 +449,78 @@ export function accounts(db: Db) {
         .update(salesEnquiries)
         .set({ status, handledBy: staffId, handledAt: new Date() })
         .where(eq(salesEnquiries.id, id));
+    },
+
+    /**
+     * Sales-led onboarding: staff create a customer's organisation on its agreed plan, or as a
+     * time-limited pilot, and invite its first owner. Returns the one-time invitation token.
+     */
+    async staffCreateOrg(input: {
+      name: string;
+      ownerEmail: string;
+      terms:
+        | { kind: 'pilot'; days: number }
+        | {
+            kind: 'plan';
+            plan: PaidPlanId;
+            seats: number;
+            interval: BillingInterval;
+            startsOn: string;
+            endsOn: string | null;
+          };
+      notes: string | null;
+      staffId: string;
+    }) {
+      const token = randomToken();
+      const pilot = input.terms.kind === 'pilot';
+      const org = await db.transaction(async (tx) => {
+        const t = input.terms;
+        const [created] = await tx
+          .insert(orgs)
+          .values({
+            name: input.name.slice(0, 120),
+            slug: slugify(input.name),
+            status: t.kind === 'pilot' ? 'trial' : 'active',
+            plan: t.kind === 'pilot' ? 'trial' : t.plan,
+            seats: t.kind === 'pilot' ? TRIAL.maxSeats : t.seats,
+            billingInterval: t.kind === 'pilot' ? 'monthly' : t.interval,
+            trialEndsAt: t.kind === 'pilot' ? new Date(Date.now() + t.days * 86_400_000) : null,
+            budgetMode: t.kind === 'pilot' ? 'hard' : 'soft',
+            activatedAt: t.kind === 'pilot' ? null : new Date(),
+          })
+          .returning();
+        if (t.kind === 'plan') {
+          await tx.insert(subscriptions).values({
+            orgId: created!.id,
+            plan: t.plan,
+            seats: t.seats,
+            interval: t.interval,
+            startsOn: t.startsOn,
+            endsOn: t.endsOn,
+            notes: input.notes,
+            createdBy: input.staffId,
+          });
+        }
+        await tx.insert(invites).values({
+          orgId: created!.id,
+          email: normaliseEmail(input.ownerEmail),
+          role: 'owner',
+          tokenHash: hashToken(token),
+          invitedBy: input.staffId,
+          expiresAt: new Date(Date.now() + 14 * 86_400_000),
+        });
+        await tx.insert(adminEvents).values({
+          orgId: created!.id,
+          actorUserId: input.staffId,
+          action: 'org.created_by_staff',
+          targetId: created!.id,
+          metadata: pilot
+            ? { pilot_days: (t as { days: number }).days }
+            : { plan: (t as { plan: string }).plan },
+        });
+        return created!;
+      });
+      return { org, inviteToken: token };
     },
 
     /** Contact-us billing: record the agreement and switch the org onto its paid plan. */

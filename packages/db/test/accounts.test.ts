@@ -131,3 +131,53 @@ describe('orgs', () => {
     expect(await acc.orgAdminEmails(org.id)).toEqual([owner.email]);
   });
 });
+
+describe('sales-led organisations', () => {
+  it('creates a paid organisation with its agreement and invites the owner', async () => {
+    const staff = await acc.upsertUser(uniqueEmail('staff-create'));
+    const ownerEmail = uniqueEmail('Customer-Owner');
+    const { org, inviteToken } = await acc.staffCreateOrg({
+      name: 'Initech',
+      ownerEmail,
+      terms: {
+        kind: 'plan',
+        plan: 'business',
+        seats: 25,
+        interval: 'annual',
+        startsOn: '2026-10-01',
+        endsOn: null,
+      },
+      notes: 'Agreed per-seat price in order form OF-12',
+      staffId: staff.id,
+    });
+    expect(org).toMatchObject({
+      status: 'active',
+      plan: 'business',
+      seats: 25,
+      billingInterval: 'annual',
+      budgetMode: 'soft',
+    });
+    expect(org.activatedAt).not.toBeNull();
+    expect(await acc.subscriptionsFor(org.id)).toHaveLength(1);
+
+    const owner = await acc.upsertUser(ownerEmail);
+    expect(await acc.acceptInvite(inviteToken, owner)).toMatchObject({ ok: true, orgId: org.id });
+    expect((await acc.userOrgs(owner.id))[0]).toMatchObject({ id: org.id, role: 'owner' });
+  });
+
+  it('creates a time-limited pilot on pilot terms', async () => {
+    const staff = await acc.upsertUser(uniqueEmail('staff-pilot'));
+    const { org } = await acc.staffCreateOrg({
+      name: 'Design Partner',
+      ownerEmail: uniqueEmail('partner'),
+      terms: { kind: 'pilot', days: 60 },
+      notes: null,
+      staffId: staff.id,
+    });
+    expect(org).toMatchObject({ status: 'trial', plan: 'trial', seats: 6, budgetMode: 'hard' });
+    const days = (org.trialEndsAt!.getTime() - Date.now()) / 86_400_000;
+    expect(days).toBeGreaterThan(59.9);
+    expect(days).toBeLessThanOrEqual(60);
+    expect(await acc.subscriptionsFor(org.id)).toHaveLength(0);
+  });
+});

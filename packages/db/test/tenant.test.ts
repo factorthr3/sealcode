@@ -82,6 +82,7 @@ describe('tenant isolation', () => {
     expect(daily.length).toBeGreaterThan(0);
     expect(daily.every((r) => r.userId === a.dev.id)).toBe(true);
     expect((await use('monthTotals')(period)).requests).toBe(1);
+    expect(await use('trialUsage')()).toBe(115);
     const seats = await use('seatUsage')(period);
     expect(seats.map((s) => s.userId)).toEqual([a.dev.id]);
     const audit = await use('audit')({ limit: 50 });

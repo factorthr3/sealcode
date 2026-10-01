@@ -85,7 +85,7 @@ export async function inviteMember(_prev: ActionState, form: FormData): Promise<
     return {
       error:
         org.status === 'trial'
-          ? `Your trial includes ${seatLimit(org)} seats. Activate a plan to add more.`
+          ? `Your pilot includes ${seatLimit(org)} seats. Contact ${SALES_EMAIL} to add more.`
           : `All ${seatLimit(org)} seats are in use. Contact ${SALES_EMAIL} to add seats.`,
     };
   }
@@ -229,7 +229,7 @@ export async function requestActivation(_prev: ActionState, form: FormData): Pro
   await sendEmail({
     to: ctx.user.email,
     subject: 'We’ve received your Sealcode activation request',
-    text: `Thanks. We've received your request to activate ${plan.name} for ${org.name} with ${input.data.seats} seats.\n\nSomeone from our team will reply within one working day with an order form and invoice details. Your trial keeps working in the meantime.`,
+    text: `Thanks. We've received your request to activate ${plan.name} for ${org.name} with ${input.data.seats} seats.\n\nSomeone from our team will reply within one working day with an order form, pricing and invoice details. Your current service keeps working in the meantime.`,
   }).catch(() => undefined);
   revalidatePath('/app/billing');
   return {

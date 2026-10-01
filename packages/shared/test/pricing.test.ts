@@ -95,3 +95,12 @@ describe('formatTokens', () => {
     expect(formatTokens(2_500_000_000)).toBe('2.5B');
   });
 });
+
+describe('custom pricing', () => {
+  it('treats Enterprise as priced per agreement', async () => {
+    const { isCustomPriced } = await import('../src');
+    expect(isCustomPriced('enterprise')).toBe(true);
+    expect(isCustomPriced('team')).toBe(false);
+    expect(isCustomPriced('trial')).toBe(false);
+  });
+});

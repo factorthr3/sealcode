@@ -5,7 +5,7 @@ import { DashboardNav, type NavItem } from '@/components/dashboard-nav';
 import { SubmitButton } from '@/components/form-controls';
 import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui';
-import { currentPeriod, daysLeft } from '@/lib/format';
+import { daysLeft } from '@/lib/format';
 import { can, ROLE_LABELS } from '@/lib/permissions';
 import { requireOrg } from '@/lib/session';
 import { signOut, switchOrg } from '../../(auth)/actions';
@@ -29,18 +29,18 @@ export default async function DashboardLayout({ children }: LayoutProps<'/app'>)
 
   let trialBanner: React.ReactNode = null;
   if (full?.status === 'trial') {
-    const used = (await repo.seatUsage(currentPeriod())).reduce((n, r) => n + r.tokens, 0);
+    const used = await repo.trialUsage();
     const allowance = resolveOrgBudget('trial', full.seats, null) ?? 0;
     const left = daysLeft(full.trialEndsAt);
     trialBanner = (
       <div className="border-b border-seal/20 bg-seal-soft px-4 py-2 text-center text-sm text-ink sm:px-8">
-        <strong className="font-semibold">Free trial</strong>: {left} {left === 1 ? 'day' : 'days'}{' '}
-        left · {formatTokens(used)} of {formatTokens(allowance)} tokens used ·{' '}
+        <strong className="font-semibold">Pilot</strong>: {left} {left === 1 ? 'day' : 'days'} left
+        · {formatTokens(used)} of {formatTokens(allowance)} tokens used ·{' '}
         <Link
           href="/app/billing"
           className="font-medium text-seal underline-offset-2 hover:underline"
         >
-          Activate your plan
+          Talk to us about your plan
         </Link>
       </div>
     );
@@ -85,12 +85,14 @@ export default async function DashboardLayout({ children }: LayoutProps<'/app'>)
                   </button>
                 </form>
               ))}
-              <Link
-                href="/onboarding"
-                className="block rounded-md px-3 py-2 text-sm text-muted hover:bg-surface-2"
-              >
-                + New organisation
-              </Link>
+              {user.isStaff ? (
+                <Link
+                  href="/staff"
+                  className="block rounded-md px-3 py-2 text-sm text-muted hover:bg-surface-2"
+                >
+                  + New organisation (staff)
+                </Link>
+              ) : null}
             </div>
           </details>
           <DashboardNav items={items} />

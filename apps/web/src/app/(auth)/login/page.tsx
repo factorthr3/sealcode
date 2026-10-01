@@ -18,8 +18,8 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
       </div>
       <p className="mt-6 text-sm text-muted">
         New to Sealcode?{' '}
-        <Link href="/signup" className="font-medium text-seal hover:underline">
-          Start a free trial
+        <Link href="/contact?reason=pricing" className="font-medium text-seal hover:underline">
+          Contact sales
         </Link>
       </p>
     </Card>

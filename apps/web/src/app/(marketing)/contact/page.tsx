@@ -18,7 +18,7 @@ const STEPS = [
   ],
   [
     'We activate your organisation',
-    'Your trial becomes your paid plan in place. Keys, members and audit history carry over.',
+    'We set up your organisation on the agreed plan and invite your admins, who connect the team in one command.',
   ],
 ] as const;
 

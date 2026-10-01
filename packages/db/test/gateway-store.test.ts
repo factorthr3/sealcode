@@ -228,7 +228,7 @@ describe('gateway on Postgres', () => {
     );
     const res = await call(gatewayFor({ now: Date.now() }), org.devKey.key);
     expect(res.status).toBe(429);
-    expect((await res.json()).error.message).toMatch(/trial has used its 50 token allowance/);
+    expect((await res.json()).error.message).toMatch(/pilot has used its 50 token allowance/);
   });
 
   it('refuses keys once the trial has ended', async () => {

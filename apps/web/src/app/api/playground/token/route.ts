@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     : allow('pg-shared', 400, 3_600_000);
   if (!ok) {
     return NextResponse.json(
-      { error: 'The playground is busy. Start a free trial to keep going, or try again later.' },
+      { error: 'The playground is busy. Try again later, or contact us to set up a pilot.' },
       { status: 429, headers: { 'retry-after': '600' } },
     );
   }

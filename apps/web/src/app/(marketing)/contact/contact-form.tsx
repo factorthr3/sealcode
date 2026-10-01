@@ -20,7 +20,7 @@ export function ContactForm({
         <p className="font-display text-3xl text-ink">Thanks. We&rsquo;ll be in touch.</p>
         <p className="mt-2 text-sm text-ink-2">
           We reply within one working day, and we&rsquo;ve emailed you a copy. Until then, the
-          playground on our homepage and the 14-day trial are yours to use.
+          playground on our homepage is yours to use.
         </p>
       </div>
     );
@@ -66,7 +66,7 @@ export function ContactForm({
           <select
             name="reason"
             defaultValue={
-              defaults.reason && defaults.reason in REASONS ? defaults.reason : 'activation'
+              defaults.reason && defaults.reason in REASONS ? defaults.reason : 'pricing'
             }
             className={inputClass}
           >

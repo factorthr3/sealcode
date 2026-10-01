@@ -32,8 +32,8 @@ export function SiteNav() {
           <ButtonLink href="/login" variant="ghost" size="sm">
             Sign in
           </ButtonLink>
-          <ButtonLink href="/signup" size="sm">
-            Start free trial
+          <ButtonLink href="/contact" size="sm">
+            Contact sales
           </ButtonLink>
         </div>
         <details className="group relative md:hidden">
@@ -59,7 +59,7 @@ export function SiteNav() {
               </Link>
             ))}
             <div className="mt-2 grid gap-2 border-t border-line p-2 pt-3">
-              <ButtonLink href="/signup">Start free trial</ButtonLink>
+              <ButtonLink href="/contact">Contact sales</ButtonLink>
               <ButtonLink href="/login" variant="secondary">
                 Sign in
               </ButtonLink>

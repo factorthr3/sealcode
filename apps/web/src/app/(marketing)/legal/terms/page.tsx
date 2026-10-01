@@ -15,13 +15,12 @@ export default function TermsPage() {
         execution environments, with metering, limits and an audit log. Model output can be wrong:
         review it as you would any contributor&rsquo;s code.
       </p>
-      <h2>Trials and paid plans</h2>
+      <h2>Plans and pilots</h2>
       <p>
-        Free trials last 14 days, with the limits shown on the{' '}
-        <Link href="/pricing">pricing page</Link>. Paid plans start when we countersign an order
-        form. Fees, seats, allowances and overage are as stated in your order form and on the
-        pricing page at the time of signing. We give at least 30 days&rsquo; notice of any change to
-        prices or models that affects you.
+        Paid plans start when we countersign an order form. Fees, seats, allowances and overage are
+        as stated in your order form. Pilots are free, time-limited evaluations with the limits we
+        agree with you. We give at least 30 days&rsquo; notice of any change to prices or models
+        that affects you.
       </p>
       <h2>Acceptable use</h2>
       <p>

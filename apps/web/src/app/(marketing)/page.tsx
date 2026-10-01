@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { formatTokens, TRIAL } from '@sealcode/shared';
 import { CodeBlock } from '@/components/code-block';
 import { HeroVisual } from '@/components/hero-visual';
 import { HowItWorks } from '@/components/how-it-works';
@@ -8,11 +7,12 @@ import { PlaygroundLazy } from '@/components/playground-lazy';
 import { PricingCards } from '@/components/pricing-cards';
 import { ButtonLink } from '@/components/ui';
 import { CAN_SEE, CANNOT_SEE } from '@/lib/content';
+import { formatUsd, PLANS } from '@sealcode/shared';
 
 export const metadata: Metadata = {
   title: { absolute: 'Sealcode: AI coding for teams that can’t send code to the cloud' },
   description:
-    'Use Claude Code, OpenCode, Cline and Continue with strong open models running inside hardware enclaves. A verifiable receipt for every request, and no prompts stored. Try it live, then start a free trial.',
+    'Use Claude Code, OpenCode, Cline and Continue with strong open models running inside hardware enclaves. A verifiable receipt for every request, and no prompts stored. Try it live, then talk to us about pricing.',
 };
 
 const PROOF = [
@@ -75,7 +75,7 @@ const FAQ = [
   },
   {
     q: 'Is it as capable as Claude?',
-    a: 'No: these are strong open models, not Claude. They handle everyday coding well: reading code, editing files, writing tests and running commands through Claude Code’s tools. If your policies block standard AI APIs, the choice is between these and nothing. Try the playground above, or run your own tasks in the trial.',
+    a: 'No: these are strong open models, not Claude. They handle everyday coding well: reading code, editing files, writing tests and running commands through Claude Code’s tools. If your policies block standard AI APIs, the choice is between these and nothing. Try the playground above, or run your own tasks in a pilot.',
   },
   {
     q: 'What exactly can Sealcode see?',
@@ -86,8 +86,8 @@ const FAQ = [
     a: 'The trust center shows the live hardware attestation and the compose hash of what’s running. Clone the repository at the attested commit and run our verification script. Each request in your audit log also has a Verify button that checks its Phala receipt.',
   },
   {
-    q: 'How does billing work?',
-    a: `Start with a free ${TRIAL.days}-day trial: ${TRIAL.maxSeats} seats and ${formatTokens(TRIAL.pooledTokens)} tokens, no card. When you’re ready, contact us: we send an order form and invoice, then activate your plan in place, keeping your keys, members and history.`,
+    q: 'How does pricing work?',
+    a: `Team is ${formatUsd(PLANS.team.pricePerSeatMonthly ?? 0)} and Business ${formatUsd(PLANS.business.pricePerSeatMonthly ?? 0)} per seat a month, each with a pooled monthly token allowance; Enterprise is priced individually. There’s no card checkout: contact us, and we send an order form and invoice, then set up your organisation and invite your admins. Design partners can start with a time-limited pilot.`,
   },
   {
     q: 'Do you support SSO and SCIM?',
@@ -153,13 +153,13 @@ export default function HomePage() {
               <ButtonLink href="#playground" size="lg">
                 Try it live
               </ButtonLink>
-              <ButtonLink href="/signup" size="lg" variant="secondary">
-                Start {TRIAL.days}-day free trial
+              <ButtonLink href="/pricing" size="lg" variant="secondary">
+                See pricing
               </ButtonLink>
             </div>
             <p className="mt-4 text-sm text-muted">
-              No card. {TRIAL.maxSeats} seats. {formatTokens(TRIAL.pooledTokens)} tokens. Set up in
-              one command.
+              Try the playground with no sign-up. Team plans from{' '}
+              {formatUsd(PLANS.team.pricePerSeatMonthly ?? 0)} per seat a month.
             </p>
           </div>
           <HeroVisual />
@@ -215,10 +215,11 @@ export default function HomePage() {
             <div className="rounded-xl border border-line bg-surface p-4">
               <p className="font-semibold">Want it on your own repo?</p>
               <p className="mt-1 text-ink-2">
-                The trial connects Claude Code in one command, with tools, files and tests.
+                A pilot connects your team&rsquo;s Claude Code in one command, with tools, files and
+                tests.
               </p>
-              <ButtonLink href="/signup" size="sm" className="mt-3 w-full">
-                Start free trial
+              <ButtonLink href="/contact?reason=pilot" size="sm" className="mt-3 w-full">
+                Talk to us about a pilot
               </ButtonLink>
             </div>
           </aside>
@@ -384,8 +385,8 @@ $ claude`}
         title="Per seat, with a pooled token allowance."
         intro={
           <>
-            Start free for {TRIAL.days} days. When you&rsquo;re ready, we invoice you directly. No
-            card online, and overage at published rates.{' '}
+            Team and Business have published per-seat prices; Enterprise is priced with you. Contact
+            us to get started and we invoice you directly.{' '}
             <Link href="/pricing" className="text-seal underline underline-offset-2">
               Full pricing →
             </Link>
@@ -423,12 +424,12 @@ $ claude`}
             Your code stays sealed. Your developers stay fast.
           </h2>
           <p className="relative mt-4 max-w-xl text-lg text-paper/75">
-            Try the playground, start a trial with your team this afternoon, or talk to us about a
-            pilot and security review.
+            Try the playground now, then talk to us about pricing, a pilot with your own code, or a
+            security review.
           </p>
           <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/signup" size="lg">
-              Start free trial
+            <ButtonLink href="/contact?reason=pricing" size="lg">
+              Contact sales
             </ButtonLink>
             <ButtonLink
               href="/contact?reason=pilot"
