@@ -14,7 +14,7 @@ export function reportDataFor(nonce: string): Buffer {
 
 export interface Attestation {
   mode: 'tee' | 'development';
-  source: { repo: string; commit: string; composeUrl: string; treeUrl: string };
+  source: { repo: string; commit: string; ref: string; composeUrl: string; treeUrl: string };
   appId?: string;
   instanceId?: string;
   appName?: string;
@@ -37,12 +37,17 @@ function inCvm(): boolean {
 }
 
 function source() {
-  const { SOURCE_REPO_URL: repo, SOURCE_COMMIT: commit } = env();
+  const { SOURCE_REPO_URL: repo, SOURCE_COMMIT } = env();
+  // Builds that don't record their commit (local development, the interim Railway deployment)
+  // link to main rather than to a ref that doesn't exist.
+  const recorded = SOURCE_COMMIT !== '' && SOURCE_COMMIT !== 'dev';
+  const ref = recorded ? SOURCE_COMMIT : 'main';
   return {
     repo,
-    commit,
-    treeUrl: `${repo}/tree/${commit}`,
-    composeUrl: `${repo}/blob/${commit}/deploy/docker-compose.yml`,
+    commit: recorded ? SOURCE_COMMIT : 'not recorded',
+    ref,
+    treeUrl: `${repo}/tree/${ref}`,
+    composeUrl: `${repo}/blob/${ref}/deploy/docker-compose.yml`,
   };
 }
 
