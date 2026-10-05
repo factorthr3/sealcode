@@ -252,22 +252,26 @@ export default async function HomePage() {
           <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
             {POOR_OPTIONS.map((o) => (
               <li key={o.title} className="rounded-2xl border border-line bg-surface p-6">
-                <span className={`flex size-11 items-center justify-center rounded-xl ${o.tone}`}>
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="size-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${o.tone}`}
                   >
-                    <path d={o.icon} />
-                  </svg>
-                </span>
-                <p className="mt-4 font-semibold">{o.title}</p>
-                <p className="mt-1 text-sm text-ink-2">{o.body}</p>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="size-6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d={o.icon} />
+                    </svg>
+                  </span>
+                  <p className="font-semibold">{o.title}</p>
+                </div>
+                <p className="mt-3 text-sm text-ink-2">{o.body}</p>
               </li>
             ))}
           </ul>
