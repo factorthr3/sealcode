@@ -56,13 +56,29 @@ const pillars = (tee: boolean) => [
   },
 ];
 
+/** The three poor options. Icons are 24px line drawings, matching the pillars below. */
 const POOR_OPTIONS = [
-  [
-    'Say no to AI',
-    'The team falls behind competitors, and developers use unapproved tools anyway.',
-  ],
-  ['Accept the risk', 'Rely on a vendor’s promises and hope the security review signs it off.'],
-  ['Build it yourself', 'Rent expensive AI hardware and hire specialists to run your own models.'],
+  {
+    title: 'Say no to AI',
+    body: 'The team falls behind competitors, and developers use unapproved tools anyway.',
+    // An AI sparkle inside a "no entry" sign.
+    icon: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M5.6 5.6l12.8 12.8 M12 8.5c.4 2.2 1.3 3.1 3.5 3.5-2.2.4-3.1 1.3-3.5 3.5-.4-2.2-1.3-3.1-3.5-3.5 2.2-.4 3.1-1.3 3.5-3.5z',
+    tone: 'bg-danger-soft text-danger',
+  },
+  {
+    title: 'Accept the risk',
+    body: 'Rely on a vendor’s promises and hope the security review signs it off.',
+    // A warning triangle.
+    icon: 'M10.3 4.5 2.9 17.3a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.5a2 2 0 0 0-3.4 0z M12 9.5v4 M12 17h.01',
+    tone: 'bg-warn-soft text-warn',
+  },
+  {
+    title: 'Build it yourself',
+    body: 'Rent expensive AI hardware and hire specialists to run your own models.',
+    // A stack of servers.
+    icon: 'M5 4h14a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M5 13h14a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z M7.5 7.5h.01 M7.5 16.5h.01 M11 7.5h5.5 M11 16.5h5.5',
+    tone: 'bg-surface-2 text-ink-2',
+  },
 ] as const;
 
 const SEGMENTS = [
@@ -234,16 +250,24 @@ export default async function HomePage() {
             So regulated teams are stuck with three poor options:
           </p>
           <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {POOR_OPTIONS.map(([title, body]) => (
-              <li key={title} className="rounded-2xl border border-line bg-surface p-6">
-                <span
-                  aria-hidden
-                  className="flex size-7 items-center justify-center rounded-full bg-surface-2 text-sm text-muted"
-                >
-                  ✕
+            {POOR_OPTIONS.map((o) => (
+              <li key={o.title} className="rounded-2xl border border-line bg-surface p-6">
+                <span className={`flex size-11 items-center justify-center rounded-xl ${o.tone}`}>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="size-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d={o.icon} />
+                  </svg>
                 </span>
-                <p className="mt-4 font-semibold">{title}</p>
-                <p className="mt-1 text-sm text-ink-2">{body}</p>
+                <p className="mt-4 font-semibold">{o.title}</p>
+                <p className="mt-1 text-sm text-ink-2">{o.body}</p>
               </li>
             ))}
           </ul>
