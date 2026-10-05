@@ -56,6 +56,15 @@ const pillars = (tee: boolean) => [
   },
 ];
 
+const POOR_OPTIONS = [
+  [
+    'Say no to AI',
+    'The team falls behind competitors, and developers use unapproved tools anyway.',
+  ],
+  ['Accept the risk', 'Rely on a vendor’s promises and hope the security review signs it off.'],
+  ['Build it yourself', 'Rent expensive AI hardware and hire specialists to run your own models.'],
+] as const;
+
 const SEGMENTS = [
   [
     'Fintech and payments',
@@ -189,6 +198,68 @@ export default async function HomePage() {
             </div>
           ))}
         </dl>
+      </section>
+
+      {/* The problem */}
+      <section
+        id="why"
+        aria-labelledby="why-title"
+        className="scroll-mt-20 bg-surface-2/60 px-4 py-20 sm:px-6 lg:py-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-seal">The problem</p>
+          <h2
+            id="why-title"
+            className="mt-3 max-w-3xl font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl"
+          >
+            Your developers want AI. Your policies say no.
+          </h2>
+          <div className="mt-6 grid max-w-3xl grid-cols-1 gap-4 text-lg text-ink-2">
+            <p>
+              AI coding assistants can now read a codebase, fix bugs, write tests and explain old
+              systems in minutes. Engineering teams everywhere are adopting them, and developers
+              increasingly expect them.
+            </p>
+            <p>
+              Most of these tools work by sending your code to a company&rsquo;s servers, where it
+              is processed in ordinary computers. You are asked to trust that company&rsquo;s
+              privacy policy. For a bank, a law firm or a health-tech supplier, that is often a
+              promise you can&rsquo;t accept. Source code holds proprietary logic, and the data
+              developers work with (test files, logs, error messages) often contains customer,
+              client or patient information.
+            </p>
+          </div>
+
+          <p className="mt-12 font-semibold">
+            So regulated teams are stuck with three poor options:
+          </p>
+          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {POOR_OPTIONS.map(([title, body]) => (
+              <li key={title} className="rounded-2xl border border-line bg-surface p-6">
+                <span
+                  aria-hidden
+                  className="flex size-7 items-center justify-center rounded-full bg-surface-2 text-sm text-muted"
+                >
+                  ✕
+                </span>
+                <p className="mt-4 font-semibold">{title}</p>
+                <p className="mt-1 text-sm text-ink-2">{body}</p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 flex flex-col gap-5 rounded-2xl border border-seal/30 bg-seal-soft p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <p className="max-w-3xl font-display text-2xl leading-snug sm:text-3xl">
+              Sealcode is a fourth option: the convenience of a normal AI service,{' '}
+              {tee
+                ? 'with proof that your code stayed sealed.'
+                : 'with AI models that run sealed inside hardware enclaves and a signed receipt for every response.'}
+            </p>
+            <ButtonLink href="#playground" className="shrink-0">
+              Try it below
+            </ButtonLink>
+          </div>
+        </div>
       </section>
 
       {/* Playground */}
