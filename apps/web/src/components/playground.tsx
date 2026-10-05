@@ -51,6 +51,19 @@ const SYSTEM =
 
 const MAX_HISTORY_CHARS = 30_000;
 
+/** Turn a network failure (the browser's bare "Failed to fetch") into something readable. */
+async function reachable(request: Promise<Response>): Promise<Response> {
+  try {
+    return await request;
+  } catch (err) {
+    if ((err as Error).name === 'AbortError') throw err;
+    throw new Error(
+      'We couldn’t reach the live playground. Try again shortly, or contact us for a live demo.',
+      { cause: err },
+    );
+  }
+}
+
 async function* sse(
   body: ReadableStream<Uint8Array>,
 ): AsyncGenerator<{ event: string; data: Record<string, unknown> }> {
@@ -100,7 +113,7 @@ export function Playground() {
   const getToken = useCallback(async (force = false) => {
     if (!force && token.current && token.current.expires - Date.now() > 30_000)
       return token.current;
-    const res = await fetch('/api/playground/token', { method: 'POST' });
+    const res = await reachable(fetch('/api/playground/token', { method: 'POST' }));
     const body = (await res.json()) as {
       token?: string;
       gateway_url?: string;
@@ -149,22 +162,24 @@ export function Playground() {
     try {
       let t = await getToken();
       const call = (tok: string, gateway: string) =>
-        fetch(`${gateway}/v1/messages`, {
-          method: 'POST',
-          signal: abort.current!.signal,
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': tok,
-            'anthropic-version': '2023-06-01',
-          },
-          body: JSON.stringify({
-            model,
-            max_tokens: PLAYGROUND.maxOutputTokens,
-            stream: true,
-            system: SYSTEM,
-            messages,
+        reachable(
+          fetch(`${gateway}/v1/messages`, {
+            method: 'POST',
+            signal: abort.current!.signal,
+            headers: {
+              'content-type': 'application/json',
+              'x-api-key': tok,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: PLAYGROUND.maxOutputTokens,
+              stream: true,
+              system: SYSTEM,
+              messages,
+            }),
           }),
-        });
+        );
       let res = await call(t.value, t.gateway);
       if (res.status === 401) {
         t = await getToken(true);
