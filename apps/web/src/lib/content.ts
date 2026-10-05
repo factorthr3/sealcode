@@ -29,6 +29,13 @@ const MODEL_PROVIDERS: Subprocessor[] = [
   },
 ];
 
+const GOOGLE_ANALYTICS: Subprocessor = {
+  name: 'Google (Analytics)',
+  purpose: 'Website analytics on our public pages, only for visitors who accept analytics cookies',
+  data: 'Pages viewed, device and approximate location; never prompts, code or dashboard data',
+  location: 'United States',
+};
+
 const RESEND: Subprocessor = {
   name: 'Resend',
   purpose: 'Transactional email: sign-in links, invitations, budget alerts',
@@ -48,6 +55,7 @@ export function subprocessors(tee: boolean): Subprocessor[] {
       },
       ...MODEL_PROVIDERS,
       RESEND,
+      GOOGLE_ANALYTICS,
       {
         name: 'Cloudflare',
         purpose: 'DNS records for certificate issuance (no traffic is proxied)',
@@ -72,6 +80,7 @@ export function subprocessors(tee: boolean): Subprocessor[] {
     },
     ...MODEL_PROVIDERS,
     RESEND,
+    GOOGLE_ANALYTICS,
   ];
 }
 

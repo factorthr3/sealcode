@@ -1,3 +1,4 @@
+import { Analytics } from '@/components/analytics';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteNav } from '@/components/site-nav';
 
@@ -13,6 +14,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <SiteNav />
       <main id="main">{children}</main>
       <SiteFooter />
+      <Analytics />
     </>
   );
 }
