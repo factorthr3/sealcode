@@ -41,8 +41,16 @@ export default async function PrivacyPage() {
       <p>
         To provide the service (authentication, limits, usage, billing and the audit log your
         organisation relies on), to reply to enquiries, and to send transactional email such as
-        sign-in links and budget alerts. We don&rsquo;t sell data and don&rsquo;t use tracking or
-        advertising cookies. We set one session cookie when you sign in.
+        sign-in links and budget alerts. We don&rsquo;t sell data or use advertising cookies. We set
+        one session cookie when you sign in.
+      </p>
+      <h2>Analytics cookies</h2>
+      <p>
+        If you accept analytics cookies, Google Analytics measures visits to our public pages: which
+        pages you view, roughly where you are and what device you use. It never runs on the
+        dashboard, sign-in or invitation pages, and never sees what you type into the playground. If
+        you decline, nothing is loaded. You can change your choice at any time with &ldquo;Cookie
+        settings&rdquo; at the bottom of every public page.
       </p>
       <h2>Who processes it</h2>
       <ul>

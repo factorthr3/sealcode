@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SALES_EMAIL, SECURITY_EMAIL } from '@sealcode/shared';
+import { CookieSettingsButton } from './analytics';
 import { Logo } from './logo';
 
 const COLUMNS = [
@@ -66,7 +67,8 @@ export function SiteFooter() {
             respective owners.
           </p>
           <p>
-            © {new Date().getUTCFullYear()} Sealcode. Confidential inference runs on Phala Cloud.
+            © {new Date().getUTCFullYear()} Sealcode. Confidential inference runs on Phala Cloud. ·{' '}
+            <CookieSettingsButton />
           </p>
         </div>
       </div>
