@@ -31,7 +31,8 @@ const MODEL_PROVIDERS: Subprocessor[] = [
 
 const GOOGLE_ANALYTICS: Subprocessor = {
   name: 'Google (Analytics)',
-  purpose: 'Website analytics on our public pages, only for visitors who accept analytics cookies',
+  purpose:
+    'Website analytics on our public pages (Consent Mode: cookies only for visitors who accept)',
   data: 'Pages viewed, device and approximate location; never prompts, code or dashboard data',
   location: 'United States',
 };

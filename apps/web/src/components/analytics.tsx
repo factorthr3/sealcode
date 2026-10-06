@@ -1,20 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import Script from 'next/script';
 import { useEffect, useLayoutEffect, useState } from 'react';
+import { CONSENT_KEY, GA_ID } from '@/lib/analytics';
 import { Button } from './ui';
 
 /**
- * Google Analytics for the public site, loaded only after the visitor accepts analytics cookies.
- * Mounted in the marketing layout only: dashboard, sign-in, invite and device pages can carry IDs
- * or tokens in their URLs, so hits are switched off whenever this layout isn't on screen.
+ * The cookie banner for Google Analytics' Consent Mode. The tag itself is in the marketing
+ * layout's HTML with analytics cookies denied by default (`lib/analytics.ts`); this records the
+ * visitor's choice and passes it to gtag. Mounted in the marketing layout only: dashboard,
+ * sign-in, invite and device pages can carry IDs or tokens in their URLs, so hits are switched
+ * off whenever this layout isn't on screen.
  */
-const GA_ID = 'G-BCVHTGRDY9';
 const DISABLE_FLAG = `ga-disable-${GA_ID}`;
-const CONSENT_KEY = 'sealcode-analytics-consent';
-/** Production only, so local and preview builds don't send hits. */
-const HOSTS = new Set(['sealcode.ai', 'www.sealcode.ai']);
 export const COOKIE_SETTINGS_EVENT = 'sealcode:cookie-settings';
 
 type Choice = 'granted' | 'denied';
@@ -36,6 +34,12 @@ function saveChoice(choice: Choice) {
   }
 }
 
+/** Pass the visitor's choice to gtag, if the tag is running (production only). */
+function updateConsent(choice: Choice) {
+  const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  gtag?.('consent', 'update', { analytics_storage: choice });
+}
+
 /** Remove Google Analytics cookies after consent is withdrawn. */
 function clearGaCookies() {
   const domain = location.hostname.replace(/^www\./, '');
@@ -51,11 +55,9 @@ function clearGaCookies() {
 export function Analytics() {
   const [choice, setChoice] = useState<Choice | null>(null);
   const [ready, setReady] = useState(false);
-  const [enabledHost, setEnabledHost] = useState(false);
 
   useEffect(() => {
     setChoice(readChoice());
-    setEnabledHost(HOSTS.has(location.hostname));
     setReady(true);
     const reopen = () => setChoice(null);
     window.addEventListener(COOKIE_SETTINGS_EVENT, reopen);
@@ -73,32 +75,14 @@ export function Analytics() {
   }, []);
 
   function decide(next: Choice) {
-    const before = readChoice();
     saveChoice(next);
     setChoice(next);
-    if (next === 'denied' && before === 'granted') {
-      // The script is already running; reload so it's gone, and drop its cookies.
-      clearGaCookies();
-      location.reload();
-    }
+    updateConsent(next);
+    if (next === 'denied') clearGaCookies();
   }
 
   return (
     <>
-      {enabledHost && choice === 'granted' ? (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="gtag-init" strategy="afterInteractive">
-            {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${GA_ID}');`}
-          </Script>
-        </>
-      ) : null}
       {ready && choice === null ? (
         <div
           role="region"
@@ -107,8 +91,9 @@ gtag('config', '${GA_ID}');`}
         >
           <div className="rounded-xl border border-line bg-surface p-4 text-sm shadow-lg">
             <p className="text-ink-2">
-              Can we use Google Analytics cookies to see how people find and use our public pages?
-              Never on the dashboard, and never what you type into the playground.{' '}
+              We use Google Analytics to see how people use our public pages. Can it set cookies? If
+              you decline, it only counts visits, without cookies. Never on the dashboard, and never
+              what you type into the playground.{' '}
               <Link href="/legal/privacy" className="underline underline-offset-2">
                 Privacy
               </Link>

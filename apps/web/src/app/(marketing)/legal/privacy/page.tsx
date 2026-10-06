@@ -44,13 +44,15 @@ export default async function PrivacyPage() {
         sign-in links and budget alerts. We don&rsquo;t sell data or use advertising cookies. We set
         one session cookie when you sign in.
       </p>
-      <h2>Analytics cookies</h2>
+      <h2>Analytics</h2>
       <p>
-        If you accept analytics cookies, Google Analytics measures visits to our public pages: which
-        pages you view, roughly where you are and what device you use. It never runs on the
-        dashboard, sign-in or invitation pages, and never sees what you type into the playground. If
-        you decline, nothing is loaded. You can change your choice at any time with &ldquo;Cookie
-        settings&rdquo; at the bottom of every public page.
+        Our public pages use Google Analytics in Consent Mode. Until you choose, and if you decline,
+        it sets no cookies and sends Google only cookieless signals: the page viewed, the time, and
+        your browser, device and approximate location, which Google uses to estimate visits. If you
+        accept analytics cookies, it also sets cookies so it can recognise repeat visits. We never
+        allow advertising cookies. Analytics never runs on the dashboard, sign-in or invitation
+        pages, and never sees what you type into the playground. You can change your choice at any
+        time with &ldquo;Cookie settings&rdquo; at the bottom of every public page.
       </p>
       <h2>Who processes it</h2>
       <ul>
